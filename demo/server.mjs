@@ -87,6 +87,7 @@ function pool(items, getN, fn) {
 async function runPhase(phase, { limit, concurrency }, send) {
   if (phase === "control" || !state) state = freshState();
   const list = tasks.slice(0, limit);
+  if (phase === "live") for (const t of list) taskState(t.id).live = null;
   running = { phase, done: 0, total: list.length, startedAt: Date.now(), concurrency };
   send("start", { phase, config: state.config, tasks: list.map((t) => ({ id: t.id, entry_point: t.entry_point, planted: t.planted, signature: t.context.required_signature })) });
   await pool(list, () => running?.concurrency ?? concurrency, async (task) => {

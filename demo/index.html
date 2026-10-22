@@ -90,6 +90,7 @@
   @media (prefers-reduced-motion: reduce) { #forest .canopy, #forest .cloud, #forest .bill-head { animation: none; } }
   .empty { padding: 28px 20px; color: var(--muted); max-width: 720px; }
   .empty b { color: var(--fg); }
+  button.link { min-height: 44px; min-width: 0; margin-top: 10px; padding: 0 14px; font-weight: 600; color: var(--accent); background: transparent; border: 1px solid var(--line); }
 </style>
 </head>
 <body>
@@ -111,7 +112,7 @@
 <div class="status" id="status"></div>
 <div class="progress" id="progress" hidden><i></i></div>
 <div id="empty" class="empty" hidden>
-  <b>Nothing has run yet.</b> <span id="emptyText"></span>
+  <b id="emptyHead">Nothing has run yet.</b> <span id="emptyText"></span>
 </div>
 <div class="board" id="board" hidden></div>
 <div class="replay" id="replayBox" hidden>
@@ -129,6 +130,7 @@ let config, rules, tasks = [], cards = new Map(), lastTasks = null, lastScoreboa
 const fmt = (n) => (n === null || n === undefined) ? "–" : Math.round(n).toLocaleString();
 const money = (tokens) => { const d = dollars(tokens, config.outputPricePerMillion); return d === null ? "" : ` · $${d.toFixed(4)}`; };
 
+const controlById = new Map();   // the control run's real lengths and times, kept even when the page opens at zero
 async function load() {
   forest.init();
   [config, rules, tasks] = await Promise.all([fetch("/config").then(r => r.json()), fetch("/rules").then(r => r.json()), fetch("/tasks").then(r => r.json())]);
@@ -138,9 +140,26 @@ async function load() {
   for (const t of tasks) makeCard(t);
   const last = await fetch("/last").then(r => r.json());
   if (last && last.running) { running = last.running.phase; $("runControl").disabled = true; $("runLive").disabled = true; $("status").textContent = `A ${last.running.phase} run is in progress; re-attaching…`; reattach(last.running.phase); }
-  if (last && last.tasks && last.scoreboard?.live?.kills) forest.restore(last.scoreboard.live.trueKills ?? last.scoreboard.live.kills, last.scoreboard.live.tokensNotGenerated);
-  if (last && last.tasks) { lastTasks = last.tasks; lastScoreboard = last.scoreboard; for (const t of last.tasks) paintTask(t, t.live ? "live" : "control"); renderBoard(); $("runLive").disabled = !last.tasks.some(t => t.control); $("status").textContent = `Showing ${last.sample ? "the sample run shipped with the demo" : "the last run"} (${new Date(last.startedAt).toLocaleString()}).`; }
-  else $("empty").hidden = false;
+  // The page opens at zero. The last run stays one click away, for when the room's wifi fails.
+  $("empty").hidden = false;
+  if (last && last.tasks) {
+    for (const t of last.tasks) if (t.control) controlById.set(t.id, t.control);
+    $("runLive").disabled = !last.tasks.some(t => t.control);
+    const when = new Date(last.startedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    $("emptyHead").textContent = "Starting from zero.";
+    $("emptyText").insertAdjacentHTML("afterend", ` <button id="showLast" class="link">Show the last run (${when})</button>`);
+    $("showLast").addEventListener("click", () => showLastRun(last));
+  }
+  if (last && last.running) $("empty").hidden = true;
+}
+
+function showLastRun(last) {
+  $("empty").hidden = true;
+  if (last.scoreboard?.live?.kills) forest.restore(last.scoreboard.live.trueKills ?? last.scoreboard.live.kills, last.scoreboard.live.tokensNotGenerated);
+  lastTasks = last.tasks; lastScoreboard = last.scoreboard;
+  for (const t of last.tasks) paintTask(t, t.live ? "live" : "control");
+  renderBoard();
+  $("status").textContent = `Showing ${last.sample ? "the sample run shipped with the demo" : "the last run"} (${new Date(last.startedAt).toLocaleString()}).`;
 }
 
 function makeCard(t) {
@@ -236,14 +255,14 @@ function run(phase) {
   const live = {}; let done = 0, total = tasks.length;
   let activeId = null;
   const es = new EventSource(`/run?phase=${phase}&concurrency=${$("oneAtATime").checked ? 1 : 4}`);
-  es.addEventListener("start", (e) => { const d = JSON.parse(e.data); total = d.tasks.length; if (phase === "live") forest.reset(); for (const t of d.tasks) { const el = cards.get(t.id); delete el.dataset.attempt; el.classList.remove("killed", "done", "streaming", "fixed"); const nb = el.querySelector(".note"); nb.hidden = true; nb.textContent = ""; el.querySelector("pre").textContent = ""; setMeter(el, null); el.querySelector(".foot").innerHTML = `<span class="state">Queued</span>`; } $("status").textContent = `${phase === "control" ? "Control" : "Live"}: 0 of ${total} done`; $("progress").hidden = false; $("progress").querySelector("i").style.width = "0%"; });
+  es.addEventListener("start", (e) => { const d = JSON.parse(e.data); total = d.tasks.length; if (phase === "live") { forest.reset(); lastScoreboard = { ...(lastScoreboard || {}), live: { kills: 0, trueKills: 0, falseKills: 0, tokensNotGenerated: 0, tokensWasted: 0, net: 0, msSaved: 0, msWasted: 0, retryMs: 0, retryTokens: 0, tasks: 0 }, retries: { tried: 0, finished: 0, passed: 0, tokens: 0 } }; if (lastTasks) lastTasks = lastTasks.map(t => ({ ...t, live: null })); renderBoard(); } else { controlById.clear(); lastScoreboard = null; lastTasks = null; $("board").hidden = true; $("replayBox").hidden = true; forest.reset(); } for (const t of d.tasks) { const el = cards.get(t.id); delete el.dataset.attempt; el.classList.remove("killed", "done", "streaming", "fixed"); const nb = el.querySelector(".note"); nb.hidden = true; nb.textContent = ""; el.querySelector("pre").textContent = ""; setMeter(el, null); el.querySelector(".foot").innerHTML = `<span class="state">Queued</span>`; } $("status").textContent = `${phase === "control" ? "Control" : "Live"}: 0 of ${total} done`; $("progress").hidden = false; $("progress").querySelector("i").style.width = "0%"; });
   es.addEventListener("text", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); const pre = el.querySelector("pre");
     if ($("oneAtATime").checked && activeId !== d.id) { if (activeId) cards.get(activeId)?.classList.remove("active"); activeId = d.id; activeIdGlobal = d.id; el.classList.add("active"); el.scrollIntoView({ block: "center", behavior: "smooth" }); } if (d.attempt && el.dataset.attempt !== String(d.attempt)) { el.dataset.attempt = String(d.attempt); pre.textContent = ""; el.classList.remove("killed"); } el.classList.add("streaming"); pre.textContent += d.text; pre.scrollTop = pre.scrollHeight; el.querySelector(".foot").innerHTML = d.attempt ? `<span class="state">Retrying with the reason</span> · ~${d.estTokens} tokens` : `<span class="state">Streaming</span> · ~${d.estTokens} tokens`; });
   es.addEventListener("checkpoint", (e) => { const d = JSON.parse(e.data); setMeter(cards.get(d.id), d.rules); });
   es.addEventListener("kill", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); el.classList.remove("streaming"); el.classList.add("killed"); el.querySelector(".foot").innerHTML = `<span class="state">Stopped at ~${d.atTokens} tokens (estimate)</span> · ${d.rule} ${d.p.toFixed(2)} at ${(d.atMs / 1000).toFixed(1)} s`;
     // Add this kill to the totals now, not when its retry finishes. The server's figures replace these at task-done.
     if (phase === "live" && !d.attempt) {
-      const t = lastTasks?.find(x => x.id === d.id); const task = tasks.find(x => x.id === d.id);
+      const t = { control: controlById.get(d.id) }; const task = tasks.find(x => x.id === d.id);
       forest.chop(t?.control?.outputTokens != null ? Math.max(0, t.control.outputTokens - d.atTokens) : null, !task?.planted);
       if (t?.control?.outputTokens != null) {
         lastScoreboard = lastScoreboard || {}; const l = lastScoreboard.live = lastScoreboard.live || { kills: 0, trueKills: 0, falseKills: 0, tokensNotGenerated: 0, tokensWasted: 0, net: 0, msSaved: 0, msWasted: 0, retryMs: 0, retryTokens: 0, tasks: 0 };
@@ -253,7 +272,7 @@ function run(phase) {
         l.net = l.tokensNotGenerated - l.tokensWasted; renderBoard();
       }
     } });
-  es.addEventListener("task-done", (e) => { const d = JSON.parse(e.data); done++; paintTask(d.task, phase); lastScoreboard = d.scoreboard; if (lastTasks) { const i = lastTasks.findIndex(t => t.id === d.task.id); if (i >= 0) lastTasks[i] = d.task; else lastTasks.push(d.task); } else lastTasks = [d.task]; renderBoard(); $("status").textContent = `${phase === "control" ? "Control" : "Live"}: ${done} of ${total} done`; $("progress").querySelector("i").style.width = `${Math.round(100 * done / total)}%`; });
+  es.addEventListener("task-done", (e) => { const d = JSON.parse(e.data); done++; if (phase === "control" && d.task.control) controlById.set(d.task.id, d.task.control); paintTask(d.task, phase); lastScoreboard = d.scoreboard; if (lastTasks) { const i = lastTasks.findIndex(t => t.id === d.task.id); if (i >= 0) lastTasks[i] = d.task; else lastTasks.push(d.task); } else lastTasks = [d.task]; renderBoard(); $("status").textContent = `${phase === "control" ? "Control" : "Live"}: ${done} of ${total} done`; $("progress").querySelector("i").style.width = `${Math.round(100 * done / total)}%`; });
   es.addEventListener("retry-start", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); const note = el.querySelector(".note"); note.hidden = false; note.innerHTML = `<b>Fed back to the model:</b> ${d.note}`; el.querySelector(".foot").innerHTML = `<span class="state">Retrying with the reason</span>`; });
   es.addEventListener("task-error", (e) => { const d = JSON.parse(e.data); done++; const el = cards.get(d.id); el.classList.remove("streaming"); el.querySelector(".foot").innerHTML = `<span class="state">Error</span> · ${d.error}`; });
   es.addEventListener("judge-error", (e) => { const d = JSON.parse(e.data); cards.get(d.id).querySelector(".foot").innerHTML += ` · judge error: ${d.error}`; });
@@ -285,7 +304,10 @@ const forest = (() => {
   const mk = (tag, attrs = {}, parent) => { const n = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); if (parent) parent.appendChild(n); return n; };
   const ease = { lin: t => t, out: t => 1 - (1 - t) ** 3, in: t => t * t * t, inOut: t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2 };
   const speed = () => Math.min(3.5, 1 + queue.length * 0.5);
-  const tween = (ms, fn, e = ease.inOut) => new Promise(res => { const d = ms / speed(), t0 = performance.now(); const step = now => { const t = Math.min(1, (now - t0) / d); fn(e(t)); t < 1 ? requestAnimationFrame(step) : res(); }; requestAnimationFrame(step); });
+  // Frames come from requestAnimationFrame, with a timer as a backstop: some browsers pause animation frames for a window
+  // that is visible but not focused, and Bill must not stall while kills pile up.
+  const nextFrame = (cb) => { let done = false; const go = () => { if (!done) { done = true; cb(performance.now()); } }; requestAnimationFrame(go); setTimeout(go, 50); };
+  const tween = (ms, fn, e = ease.inOut) => new Promise(res => { const d = ms / speed(), t0 = performance.now(); const step = now => { const t = Math.min(1, (now - t0) / d); fn(e(t)); t < 1 ? nextFrame(step) : res(); }; nextFrame(step); });
   const rnd = (a, b) => a + Math.random() * (b - a);
 
   function build() {
@@ -421,11 +443,12 @@ const forest = (() => {
 
   function tally() {
     const price = config?.outputPricePerMillion; const d = price != null ? ` · −$${(saved / 1e6 * price).toFixed(4)}` : "";
-    $("forestTally").textContent = felled ? `${felled} felled · −${fmt(saved)} tokens${d}${oops ? ` · ${oops} by mistake` : ""}${queue.length ? ` · ${queue.length} in line` : ""}` : (queue.length ? `${queue.length} in line` : "Bill is waiting for the first bad generation.");
+    const line = queue.length ? ` · ${queue.length} in line` : "";
+    $("forestTally").textContent = felled ? `${felled} felled · −${fmt(saved)} tokens${d}${oops ? ` · ${oops} by mistake` : ""}${line}` : (busy ? `Bill is chopping the first one${line}` : "Bill is waiting for the first bad generation.");
   }
 
   async function run() {
-    if (busy) return; busy = true; const g = gen;
+    if (busy) return; busy = true; tally(); const g = gen;
     while (queue.length && g === gen) {
       const job = queue.shift(); tally();
       let tree = trees.find(t => !t.down);
