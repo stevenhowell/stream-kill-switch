@@ -104,3 +104,12 @@ test("countTokens is used when given", async () => {
   const record = await runWithKillSwitch({ createStream: () => new FakeStream(chunksOf(GOOD, 30)), params: {}, mode: "off", countTokens: async (t) => t.length });
   assert.equal(record.countedTokens, GOOD.length);
 });
+
+test("stopAfter ends judging once the opening is past", async () => {
+  const judge = fakeJudge({ score: () => ({ r: 0.1 }) });
+  const record = await runWithKillSwitch({
+    createStream: () => new FakeStream(chunksOf(GOOD, 30)),
+    params: {}, judge, rules: [{ id: "r", question: "q" }], mode: "shadow", stopAfter: 250,
+  });
+  assert.deepEqual(record.checkpoints.map((c) => c.at), [50, 150, 250]);
+});

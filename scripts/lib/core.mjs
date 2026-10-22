@@ -6,6 +6,8 @@ export const DEFAULTS = Object.freeze({
   threshold: 0.5,        // a rule trips when its p(yes) is at or above this
   firstCheckpoint: 50,   // estimated tokens before the first judgement
   every: 100,            // estimated tokens between judgements after the first
+  stopAfter: Infinity,   // estimated tokens after which no more checkpoints fire: the judge re-reads the whole prefix each
+                         // time, so judge input grows with output length, and faults that show early are already caught
   charsPerToken: 3,      // measured 3.0 (Sonnet 5.5) and 3.1 (Haiku 5.5) chars per token on English prose, 2026-10-21
 });
 
@@ -58,6 +60,7 @@ export async function runWithKillSwitch({
   threshold = DEFAULTS.threshold,
   firstCheckpoint = DEFAULTS.firstCheckpoint,
   every = DEFAULTS.every,
+  stopAfter = DEFAULTS.stopAfter,
   charsPerToken = DEFAULTS.charsPerToken,
   countTokens = null,
   onEvent = () => {},
@@ -121,7 +124,7 @@ export async function runWithKillSwitch({
     if (killed) { charsAfterAbort += delta.length; return; }
     if (mode === "off") return;
     const e = est(text);
-    if (e >= nextAt) {
+    if (e >= nextAt && nextAt <= stopAfter) {
       while (nextAt <= e) nextAt += every;
       if (inFlight) pending = true; else fire(e);
     }
