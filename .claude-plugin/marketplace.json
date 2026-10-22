@@ -1,0 +1,28 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "stevenhowell",
+  "description": "Skills by Steven Howell.",
+  "owner": {
+    "name": "Steven Howell",
+    "url": "https://github.com/stevenhowell"
+  },
+  "metadata": {
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "stream-kill-switch",
+      "source": ".",
+      "description": "Judge a streaming Claude generation every ~100 tokens with a decision model and abort the bad ones before the output tokens are paid for.",
+      "category": "development",
+      "tags": [
+        "streaming",
+        "early-abort",
+        "guardrails",
+        "speculative-rejection",
+        "decision-model",
+        "token-cost"
+      ]
+    }
+  ]
+}

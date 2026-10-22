@@ -1,0 +1,28 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "stream-kill-switch",
+  "version": "0.1.0",
+  "description": "Judge a streaming Claude generation every ~100 tokens with a decision model and abort the bad ones before the output tokens are paid for.",
+  "author": {
+    "name": "Steven Howell",
+    "url": "https://github.com/stevenhowell"
+  },
+  "homepage": "https://github.com/stevenhowell/stream-kill-switch",
+  "repository": "https://github.com/stevenhowell/stream-kill-switch",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "claude-skills",
+    "agent-skills",
+    "streaming",
+    "early-abort",
+    "guardrails",
+    "speculative-rejection",
+    "decision-model",
+    "jev",
+    "token-cost"
+  ],
+  "skills": [
+    "./"
+  ]
+}
