@@ -1,6 +1,24 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "demo", "runtimeExecutable": "node", "runtimeArgs": ["--env-file=.env", "demo/server.mjs"], "port": 8787 }
+    {
+      "name": "demo",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--env-file=.env",
+        "demo/server.mjs"
+      ],
+      "port": 8787
+    },
+    {
+      "name": "demo-test",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--env-file=.env",
+        "--env-file=demo/test.env",
+        "demo/server.mjs"
+      ],
+      "port": 8788
+    }
   ]
 }

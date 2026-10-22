@@ -36,7 +36,7 @@ function genParams(task) {
 }
 
 let running = null; // { phase, done, total } while a phase runs, so a page that lost its connection can re-attach
-const runsDir = here + "runs/";
+const runsDir = process.env.DEMO_RUNS ? process.env.DEMO_RUNS.replace(/\/?$/, "/") : here + "runs/";
 if (!existsSync(runsDir)) mkdirSync(runsDir, { recursive: true });
 const latestPath = runsDir + "latest.json";
 // With no run yet, show the committed sample run (2026-10-21 rehearsal) so the page is not empty; the next control run replaces it.

@@ -16,6 +16,9 @@
   h1 { font-size: 22px; margin: 0; }
   .sub { color: var(--muted); font-size: 13px; }
   .controls { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .toggle { display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 10px; color: var(--muted); font-size: 13px; cursor: pointer; }
+  .toggle input { width: 18px; height: 18px; }
+  .card.active { outline: 3px solid var(--accent); outline-offset: 2px; }
   button { font: inherit; font-weight: 600; min-height: 44px; min-width: 120px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--fg); cursor: pointer; }
   button.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
   button:active:not(:disabled) { transform: translateY(1px); filter: brightness(0.92); }
@@ -70,6 +73,7 @@
     <div class="sub" id="sub">Loading…</div>
   </div>
   <div class="controls">
+    <label class="toggle"><input type="checkbox" id="oneAtATime" checked> One at a time</label>
     <button id="runControl" class="primary">Run control</button>
     <button id="runLive" disabled>Run live</button>
   </div>
@@ -188,16 +192,19 @@ function run(phase) {
   if (running) return;
   running = phase; $("runControl").disabled = true; $("runLive").disabled = true; $("empty").hidden = true;
   const live = {}; let done = 0, total = tasks.length;
-  const es = new EventSource(`/run?phase=${phase}`);
+  const oneAtATime = $("oneAtATime").checked;
+  let activeId = null;
+  const es = new EventSource(`/run?phase=${phase}&concurrency=${oneAtATime ? 1 : 4}`);
   es.addEventListener("start", (e) => { const d = JSON.parse(e.data); total = d.tasks.length; for (const t of d.tasks) { const el = cards.get(t.id); delete el.dataset.attempt; el.classList.remove("killed", "done", "streaming", "fixed"); const nb = el.querySelector(".note"); nb.hidden = true; nb.textContent = ""; el.querySelector("pre").textContent = ""; setMeter(el, null); el.querySelector(".foot").innerHTML = `<span class="state">Queued</span>`; } $("status").textContent = `${phase === "control" ? "Control" : "Live"}: 0 of ${total} done`; $("progress").hidden = false; $("progress").querySelector("i").style.width = "0%"; });
-  es.addEventListener("text", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); const pre = el.querySelector("pre"); if (d.attempt && el.dataset.attempt !== String(d.attempt)) { el.dataset.attempt = String(d.attempt); pre.textContent = ""; el.classList.remove("killed"); } el.classList.add("streaming"); pre.textContent += d.text; pre.scrollTop = pre.scrollHeight; el.querySelector(".foot").innerHTML = d.attempt ? `<span class="state">Retrying with the reason</span> · ~${d.estTokens} tokens` : `<span class="state">Streaming</span> · ~${d.estTokens} tokens`; });
+  es.addEventListener("text", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); const pre = el.querySelector("pre");
+    if (oneAtATime && activeId !== d.id) { if (activeId) cards.get(activeId)?.classList.remove("active"); activeId = d.id; el.classList.add("active"); el.scrollIntoView({ block: "center", behavior: "smooth" }); } if (d.attempt && el.dataset.attempt !== String(d.attempt)) { el.dataset.attempt = String(d.attempt); pre.textContent = ""; el.classList.remove("killed"); } el.classList.add("streaming"); pre.textContent += d.text; pre.scrollTop = pre.scrollHeight; el.querySelector(".foot").innerHTML = d.attempt ? `<span class="state">Retrying with the reason</span> · ~${d.estTokens} tokens` : `<span class="state">Streaming</span> · ~${d.estTokens} tokens`; });
   es.addEventListener("checkpoint", (e) => { const d = JSON.parse(e.data); setMeter(cards.get(d.id), d.rules); });
   es.addEventListener("kill", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); el.classList.remove("streaming"); el.classList.add("killed"); el.querySelector(".foot").innerHTML = `<span class="state">Stopped at ~${d.atTokens} tokens (estimate)</span> · ${d.rule} ${d.p.toFixed(2)} at ${(d.atMs / 1000).toFixed(1)} s`; });
   es.addEventListener("task-done", (e) => { const d = JSON.parse(e.data); done++; paintTask(d.task, phase); lastScoreboard = d.scoreboard; if (lastTasks) { const i = lastTasks.findIndex(t => t.id === d.task.id); if (i >= 0) lastTasks[i] = d.task; else lastTasks.push(d.task); } else lastTasks = [d.task]; renderBoard(); $("status").textContent = `${phase === "control" ? "Control" : "Live"}: ${done} of ${total} done`; $("progress").querySelector("i").style.width = `${Math.round(100 * done / total)}%`; });
   es.addEventListener("retry-start", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); const note = el.querySelector(".note"); note.hidden = false; note.innerHTML = `<b>Fed back to the model:</b> ${d.note}`; el.querySelector(".foot").innerHTML = `<span class="state">Retrying with the reason</span>`; });
   es.addEventListener("task-error", (e) => { const d = JSON.parse(e.data); done++; const el = cards.get(d.id); el.classList.remove("streaming"); el.querySelector(".foot").innerHTML = `<span class="state">Error</span> · ${d.error}`; });
   es.addEventListener("judge-error", (e) => { const d = JSON.parse(e.data); cards.get(d.id).querySelector(".foot").innerHTML += ` · judge error: ${d.error}`; });
-  es.addEventListener("phase-done", (e) => { const d = JSON.parse(e.data); lastTasks = d.tasks; lastScoreboard = d.scoreboard; renderBoard(); es.close(); running = null; $("runControl").disabled = false; $("runLive").disabled = false; $("status").textContent = `${phase === "control" ? "Control" : "Live"} finished: ${done} of ${total}.`; $("progress").hidden = true; });
+  es.addEventListener("phase-done", (e) => { const d = JSON.parse(e.data); if (activeId) cards.get(activeId)?.classList.remove("active"); window.scrollTo({ top: 0, behavior: "smooth" }); lastTasks = d.tasks; lastScoreboard = d.scoreboard; renderBoard(); es.close(); running = null; $("runControl").disabled = false; $("runLive").disabled = false; $("status").textContent = `${phase === "control" ? "Control" : "Live"} finished: ${done} of ${total}.`; $("progress").hidden = true; });
   es.onerror = () => { if (!running) return; es.close(); $("status").textContent = `Connection dropped during the ${phase} run. The server keeps going; re-attaching…`; reattach(phase); };
 }
 async function reattach(phase) {
