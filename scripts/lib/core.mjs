@@ -8,6 +8,8 @@ export const DEFAULTS = Object.freeze({
   every: 100,            // estimated tokens between judgements after the first
   stopAfter: Infinity,   // estimated tokens after which no more checkpoints fire: the judge re-reads the whole prefix each
                          // time, so judge input grows with output length, and faults that show early are already caught
+  judgeTimeoutMs: 8000,  // a judge call that has not answered by then counts as a judge error; the stream carries on
+  maxMs: Infinity,       // abort the generation if it runs longer than this (wall-clock), and report it as an error
   charsPerToken: 3,      // measured 3.0 (Sonnet 5.5) and 3.1 (Haiku 5.5) chars per token on English prose, 2026-10-21
 });
 
@@ -30,6 +32,13 @@ export function decide(ruleProbabilities, threshold = DEFAULTS.threshold) {
 export function isAbortError(err) {
   const name = err?.name ?? err?.constructor?.name ?? "";
   return name === "APIUserAbortError" || name === "AbortError" || /abort/i.test(String(err?.message ?? ""));
+}
+
+/** Resolve with p, or reject with message after ms. The loser keeps running but is ignored. */
+export function withTimeout(p, ms, message) {
+  if (!Number.isFinite(ms)) return Promise.resolve(p);
+  let t; const timeout = new Promise((_, reject) => { t = setTimeout(() => reject(new Error(message)), ms); });
+  return Promise.race([Promise.resolve(p), timeout]).finally(() => clearTimeout(t));
 }
 
 export function median(nums) {
@@ -63,6 +72,8 @@ export async function runWithKillSwitch({
   stopAfter = DEFAULTS.stopAfter,
   charsPerToken = DEFAULTS.charsPerToken,
   countTokens = null,
+  judgeTimeoutMs = DEFAULTS.judgeTimeoutMs,
+  maxMs = DEFAULTS.maxMs,
   onEvent = () => {},
   now = () => performance.now(),
 }) {
@@ -87,12 +98,14 @@ export async function runWithKillSwitch({
   const judgeErrors = [];
 
   const stream = createStream(params);
+  let timedOut = false;
+  const timer = Number.isFinite(maxMs) ? setTimeout(() => { if (!finished) { timedOut = true; try { stream.abort(); } catch {} } }, maxMs) : null;
 
   const fire = (estTokens) => {
     const snapshot = text;
     const sentAtMs = ms();
     inFlight = Promise.resolve()
-      .then(() => judge({ task, partial: snapshot, context, rules, estTokens }))
+      .then(() => withTimeout(judge({ task, partial: snapshot, context, rules, estTokens }), judgeTimeoutMs, `judge timed out after ${judgeTimeoutMs} ms`))
       .then((res) => {
         const decision = decide(res.rules, threshold);
         const cp = { at: estTokens, chars: snapshot.length, sentAtMs, ms: res.ms ?? ms() - sentAtMs, rules: res.rules, choice: res.choice ?? null, decision };
@@ -135,8 +148,10 @@ export async function runWithKillSwitch({
   try {
     message = await stream.finalMessage();
   } catch (err) {
-    if (!(killed && isAbortError(err))) error = err;
+    if (timedOut) error = new Error(`generation timed out after ${maxMs} ms`);
+    else if (!(killed && isAbortError(err))) error = err;
   }
+  if (timer) clearTimeout(timer);
   finished = true;
   while (inFlight) await inFlight;   // a pending re-fire can replace inFlight inside the previous call's finally
   if (error) throw error;
@@ -160,7 +175,7 @@ export async function runWithKillSwitch({
     stopReason: message?.stop_reason ?? (killed ? "killed" : null),
   };
   if (countTokens) {
-    try { record.countedTokens = await countTokens(text); } catch (err) { judgeErrors.push(`countTokens: ${err?.message ?? err}`); }
+    try { record.countedTokens = await withTimeout(countTokens(text), 10000, "countTokens timed out"); } catch (err) { judgeErrors.push(`countTokens: ${err?.message ?? err}`); }
   }
   onEvent({ type: "done", record });
   return record;

@@ -7,8 +7,10 @@
 <style>
   :root { color-scheme: light dark;
     --bg: #ffffff; --fg: #1d1d1f; --muted: #6e6e73; --line: #d2d2d7; --card: #f5f5f7; --code: #fbfbfd;
-    --red: #d70015; --green: #1f7a3a; --amber: #b25000; --accent: #0066cc; --accent-fg: #fff; }
-  @media (prefers-color-scheme: dark) { :root { --bg: #1c1c1e; --fg: #f5f5f7; --muted: #a1a1a6; --line: #3a3a3c; --card: #2c2c2e; --code: #161618; --red: #ff453a; --green: #30d158; --amber: #ff9f0a; --accent: #0a84ff; } }
+    --red: #d70015; --green: #1f7a3a; --amber: #b25000; --accent: #0066cc; --accent-fg: #fff;
+    --sky1: #bfe0ff; --sky2: #eef7ff; --hill: #a9d18e; --ground: #5b8f3f; --ground2: #4a7a32; --cloud: #ffffff; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #1c1c1e; --fg: #f5f5f7; --muted: #a1a1a6; --line: #3a3a3c; --card: #2c2c2e; --code: #161618; --red: #ff453a; --green: #30d158; --amber: #ff9f0a; --accent: #0a84ff;
+    --sky1: #14223a; --sky2: #22344f; --hill: #2e4a2a; --ground: #2f5426; --ground2: #264720; --cloud: rgba(255,255,255,.16); } }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
   body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.4 -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif; }
@@ -63,26 +65,29 @@
   .card.killed .foot .state { color: var(--red); font-weight: 600; }
   .card.done .foot .state { color: var(--green); font-weight: 600; }
 
-  /* Bill the lumberjack: one tree per kill */
-  #bill { position: fixed; right: 16px; bottom: 16px; width: 300px; height: 190px; z-index: 10; pointer-events: none; filter: drop-shadow(0 4px 10px rgba(0,0,0,.25)); }
-  #bill[hidden] { display: none !important; }
-  #bill .scene { width: 100%; height: 150px; background: color-mix(in srgb, var(--card) 85%, transparent); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
-  #bill .stumps { display: flex; gap: 3px; flex-wrap: wrap; padding: 4px 8px; font-size: 11px; color: var(--muted); align-items: center; }
-  #bill .stumps i { display: inline-block; width: 9px; height: 7px; background: #8b5a2b; border-radius: 2px 2px 0 0; border-top: 2px solid #c08a4e; }
-  #bill .axe { transform-origin: 62px 70px; }
-  #bill.chop .axe { animation: swing .35s ease-in-out 3; }
-  #bill.chop .body { animation: lean .35s ease-in-out 3; transform-origin: 48px 112px; }
-  #bill .tree { transform-origin: 200px 118px; }
-  #bill.fall .tree { animation: fall .8s cubic-bezier(.6,0,.9,.4) forwards; }
-  #bill.fall .tag { animation: rise 1.2s ease-out forwards; }
-  #bill .tag { opacity: 0; font: 700 13px -apple-system, "Helvetica Neue", sans-serif; fill: var(--green); }
-  #bill .face { animation: breathe 3s ease-in-out infinite; transform-origin: 48px 70px; }
-  @keyframes swing { 0% { transform: rotate(-70deg); } 55% { transform: rotate(25deg); } 100% { transform: rotate(-70deg); } }
-  @keyframes lean { 0% { transform: rotate(0); } 55% { transform: rotate(8deg); } 100% { transform: rotate(0); } }
-  @keyframes fall { 0% { transform: rotate(0); } 80% { transform: rotate(78deg); } 100% { transform: rotate(80deg); opacity: 0; } }
-  @keyframes rise { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-40px); } }
-  @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
-  @media (prefers-reduced-motion: reduce) { #bill .face, #bill.chop .axe, #bill.chop .body { animation: none; } #bill.fall .tree { animation: none; opacity: 0; } }
+
+  /* Forest strip: Bill fells one tree per stopped generation */
+  #forest { position: relative; margin: 12px 20px 4px; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: linear-gradient(var(--sky1), var(--sky2)); }
+  #forestSvg { display: block; width: 100%; height: 140px; }
+  #forest .tally { font-size: 13px; font-weight: 600; padding: 6px 12px; color: var(--fg); background: var(--card); border-top: 1px solid var(--line); }
+  #forest .hill { fill: var(--hill); } #forest .ground { fill: var(--ground); } #forest .ground-edge { fill: var(--ground2); }
+  #forest .cloud { fill: var(--cloud); animation: drift linear infinite; }
+  #forest .trunk { fill: #8b5a2b; } #forest .rings { fill: #d9a066; } #forest .notch { fill: #3b2410; }
+  #forest .canopy { transform-box: fill-box; transform-origin: 50% 100%; animation: sway 4.2s ease-in-out infinite; }
+  #forest .c0 polygon { fill: #2f7d3a; } #forest .c1 polygon { fill: #3a9a46; } #forest .c2 polygon { fill: #26683a; }
+  #forest .bill-head { animation: bob 2.6s ease-in-out infinite; }
+  #forest .flannel { fill: #c0392b; } #forest .belt { fill: #3b2a1a; } #forest .jeans { fill: #2c4a7a; } #forest .boot { fill: #3b2a1a; }
+  #forest .skin { fill: #f1c27d; } #forest .beard { fill: #7a4a24; } #forest .eye { fill: #111; } #forest .hat { fill: #e67e22; } #forest .hat-band { fill: #b35a12; }
+  #forest .handle { fill: #9c6b3c; } #forest .axehead { fill: #c3ccd2; stroke: #6d7880; stroke-width: 1; }
+  #forest .chip { fill: #e0b07a; } #forest .dust { fill: #c9b79c; opacity: .7; }
+  #forest .bubble rect { fill: var(--bg); stroke: var(--fg); stroke-width: 1.2; } #forest .bubble path { fill: var(--bg); stroke: var(--fg); stroke-width: 1.2; }
+  #forest .bubble text { font: 800 11px -apple-system, "Helvetica Neue", sans-serif; fill: var(--fg); }
+  #forest .savetag { font: 800 14px -apple-system, "Helvetica Neue", sans-serif; fill: var(--green); paint-order: stroke; stroke: var(--bg); stroke-width: 3px; }
+  #forest .savetag.bad { fill: var(--amber); }
+  @keyframes drift { from { transform: translateX(-90px); } to { transform: translateX(110vw); } }
+  @keyframes sway { 0%, 100% { transform: rotate(-1.3deg); } 50% { transform: rotate(1.3deg); } }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-.8px); } }
+  @media (prefers-reduced-motion: reduce) { #forest .canopy, #forest .cloud, #forest .bill-head { animation: none; } }
   .empty { padding: 28px 20px; color: var(--muted); max-width: 720px; }
   .empty b { color: var(--fg); }
 </style>
@@ -99,6 +104,10 @@
     <button id="runLive" disabled>Run live</button>
   </div>
 </header>
+<section id="forest" aria-label="Bill the lumberjack fells one tree for every stopped generation">
+  <svg id="forestSvg" aria-hidden="true"></svg>
+  <div class="tally" id="forestTally">Bill is waiting for the first bad generation.</div>
+</section>
 <div class="status" id="status"></div>
 <div class="progress" id="progress" hidden><i></i></div>
 <div id="empty" class="empty" hidden>
@@ -110,40 +119,6 @@
   <span id="replayText"></span>
 </div>
 <div class="grid" id="grid"></div>
-<div id="bill" hidden aria-label="Bill the lumberjack: one tree falls for every killed generation">
-  <div class="scene">
-    <svg viewBox="0 0 300 150" width="100%" height="150">
-      <rect x="0" y="118" width="300" height="32" fill="#4c7a3a"/>
-      <ellipse cx="150" cy="120" rx="170" ry="5" fill="#3f6630"/>
-      <g class="tree">
-        <rect x="193" y="70" width="14" height="50" fill="#8b5a2b"/>
-        <polygon points="200,10 165,70 235,70" fill="#2f7d3a"/>
-        <polygon points="200,30 160,92 240,92" fill="#3a9a46"/>
-      </g>
-      <rect class="stump" x="193" y="112" width="14" height="8" fill="#8b5a2b"/>
-      <text class="tag" x="190" y="60" text-anchor="middle"></text>
-      <g class="body">
-        <rect x="38" y="78" width="22" height="34" rx="4" fill="#c0392b"/>
-        <rect x="38" y="78" width="22" height="34" rx="4" fill="url(#plaid)"/>
-        <rect x="40" y="110" width="8" height="12" fill="#2c3e50"/><rect x="50" y="110" width="8" height="12" fill="#2c3e50"/>
-        <rect x="38" y="121" width="11" height="5" fill="#111"/><rect x="49" y="121" width="11" height="5" fill="#111"/>
-        <g class="face">
-          <circle cx="49" cy="66" r="12" fill="#f1c27d"/>
-          <path d="M37 66 q12 -16 24 0" fill="#c0392b"/>
-          <rect x="35" y="58" width="28" height="5" fill="#c0392b"/>
-          <circle cx="45" cy="66" r="1.6" fill="#111"/><circle cx="53" cy="66" r="1.6" fill="#111"/>
-          <path d="M40 72 q9 12 18 0 v6 q-9 6 -18 0z" fill="#6b4423"/>
-        </g>
-        <g class="axe">
-          <rect x="60" y="68" width="4" height="40" rx="2" fill="#8b5a2b" transform="rotate(-20 62 70)"/>
-          <path d="M58 62 l14 -10 l10 8 l-6 14z" fill="#9aa5ad" transform="rotate(-20 62 70)"/>
-        </g>
-      </g>
-      <defs><pattern id="plaid" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="none"/><rect width="8" height="2" fill="rgba(0,0,0,.25)"/><rect width="2" height="8" fill="rgba(0,0,0,.25)"/></pattern></defs>
-    </svg>
-  </div>
-  <div class="stumps"><span class="count">Bill is waiting for the first bad one.</span></div>
-</div>
 
 
 <script type="module">
@@ -155,6 +130,7 @@ const fmt = (n) => (n === null || n === undefined) ? "–" : Math.round(n).toLoc
 const money = (tokens) => { const d = dollars(tokens, config.outputPricePerMillion); return d === null ? "" : ` · $${d.toFixed(4)}`; };
 
 async function load() {
+  forest.init();
   [config, rules, tasks] = await Promise.all([fetch("/config").then(r => r.json()), fetch("/rules").then(r => r.json()), fetch("/tasks").then(r => r.json())]);
   const planted = tasks.filter(t => t.planted).length;
   $("sub").textContent = `${tasks.length} HumanEval problems (the ${tasks.length} with the longest reference solutions), ${planted} with a planted fault · ${config.model} streaming · ${config.judge} judging at ~${config.firstCheckpoint} tokens, then every ${config.every} · threshold ${config.threshold}`;
@@ -162,7 +138,7 @@ async function load() {
   for (const t of tasks) makeCard(t);
   const last = await fetch("/last").then(r => r.json());
   if (last && last.running) { running = last.running.phase; $("runControl").disabled = true; $("runLive").disabled = true; $("status").textContent = `A ${last.running.phase} run is in progress; re-attaching…`; reattach(last.running.phase); }
-  if (last && last.tasks && last.scoreboard?.live?.kills) { bill.felled = last.scoreboard.live.kills; billShow(); $("bill").querySelector(".stumps").innerHTML = Array.from({ length: Math.min(bill.felled, 40) }, () => "<i></i>").join("") + `<span class="count">${bill.felled} felled last run</span>`; }
+  if (last && last.tasks && last.scoreboard?.live?.kills) forest.restore(last.scoreboard.live.trueKills ?? last.scoreboard.live.kills, last.scoreboard.live.tokensNotGenerated);
   if (last && last.tasks) { lastTasks = last.tasks; lastScoreboard = last.scoreboard; for (const t of last.tasks) paintTask(t, t.live ? "live" : "control"); renderBoard(); $("runLive").disabled = !last.tasks.some(t => t.control); $("status").textContent = `Showing ${last.sample ? "the sample run shipped with the demo" : "the last run"} (${new Date(last.startedAt).toLocaleString()}).`; }
   else $("empty").hidden = false;
 }
@@ -260,7 +236,7 @@ function run(phase) {
   const live = {}; let done = 0, total = tasks.length;
   let activeId = null;
   const es = new EventSource(`/run?phase=${phase}&concurrency=${$("oneAtATime").checked ? 1 : 4}`);
-  es.addEventListener("start", (e) => { const d = JSON.parse(e.data); total = d.tasks.length; if (phase === "live") billReset(); for (const t of d.tasks) { const el = cards.get(t.id); delete el.dataset.attempt; el.classList.remove("killed", "done", "streaming", "fixed"); const nb = el.querySelector(".note"); nb.hidden = true; nb.textContent = ""; el.querySelector("pre").textContent = ""; setMeter(el, null); el.querySelector(".foot").innerHTML = `<span class="state">Queued</span>`; } $("status").textContent = `${phase === "control" ? "Control" : "Live"}: 0 of ${total} done`; $("progress").hidden = false; $("progress").querySelector("i").style.width = "0%"; });
+  es.addEventListener("start", (e) => { const d = JSON.parse(e.data); total = d.tasks.length; if (phase === "live") forest.reset(); for (const t of d.tasks) { const el = cards.get(t.id); delete el.dataset.attempt; el.classList.remove("killed", "done", "streaming", "fixed"); const nb = el.querySelector(".note"); nb.hidden = true; nb.textContent = ""; el.querySelector("pre").textContent = ""; setMeter(el, null); el.querySelector(".foot").innerHTML = `<span class="state">Queued</span>`; } $("status").textContent = `${phase === "control" ? "Control" : "Live"}: 0 of ${total} done`; $("progress").hidden = false; $("progress").querySelector("i").style.width = "0%"; });
   es.addEventListener("text", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); const pre = el.querySelector("pre");
     if ($("oneAtATime").checked && activeId !== d.id) { if (activeId) cards.get(activeId)?.classList.remove("active"); activeId = d.id; activeIdGlobal = d.id; el.classList.add("active"); el.scrollIntoView({ block: "center", behavior: "smooth" }); } if (d.attempt && el.dataset.attempt !== String(d.attempt)) { el.dataset.attempt = String(d.attempt); pre.textContent = ""; el.classList.remove("killed"); } el.classList.add("streaming"); pre.textContent += d.text; pre.scrollTop = pre.scrollHeight; el.querySelector(".foot").innerHTML = d.attempt ? `<span class="state">Retrying with the reason</span> · ~${d.estTokens} tokens` : `<span class="state">Streaming</span> · ~${d.estTokens} tokens`; });
   es.addEventListener("checkpoint", (e) => { const d = JSON.parse(e.data); setMeter(cards.get(d.id), d.rules); });
@@ -268,7 +244,7 @@ function run(phase) {
     // Add this kill to the totals now, not when its retry finishes. The server's figures replace these at task-done.
     if (phase === "live" && !d.attempt) {
       const t = lastTasks?.find(x => x.id === d.id); const task = tasks.find(x => x.id === d.id);
-      billChop(t?.control?.outputTokens != null ? Math.max(0, t.control.outputTokens - d.atTokens) : null);
+      forest.chop(t?.control?.outputTokens != null ? Math.max(0, t.control.outputTokens - d.atTokens) : null, !task?.planted);
       if (t?.control?.outputTokens != null) {
         lastScoreboard = lastScoreboard || {}; const l = lastScoreboard.live = lastScoreboard.live || { kills: 0, trueKills: 0, falseKills: 0, tokensNotGenerated: 0, tokensWasted: 0, net: 0, msSaved: 0, msWasted: 0, retryMs: 0, retryTokens: 0, tasks: 0 };
         l.kills++;
@@ -291,7 +267,6 @@ async function reattach(phase) {
     let st; try { st = await fetch("/status").then(r => r.json()); } catch { $("status").textContent = "Server unreachable. Is `npm run demo` still running?"; continue; }
     if (st.running) { $("status").textContent = `${st.running.phase === "control" ? "Control" : "Live"}: ${st.running.done} of ${st.running.total} done (re-attached, results arrive when the run ends)`; continue; }
     const last = await fetch("/last").then(r => r.json());
-    if (last && last.tasks && last.scoreboard?.live?.kills) { bill.felled = last.scoreboard.live.kills; billShow(); $("bill").querySelector(".stumps").innerHTML = Array.from({ length: Math.min(bill.felled, 40) }, () => "<i></i>").join("") + `<span class="count">${bill.felled} felled last run</span>`; }
   if (last && last.tasks) { lastTasks = last.tasks; lastScoreboard = last.scoreboard; for (const t of last.tasks) paintTask(t, t.live ? "live" : "control"); renderBoard(); }
     running = null; $("runControl").disabled = false; $("runLive").disabled = !(last && last.tasks && last.tasks.some(t => t.control)); $("progress").hidden = true;
     $("status").textContent = `${phase === "control" ? "Control" : "Live"} finished (re-attached).`;
@@ -299,26 +274,182 @@ async function reattach(phase) {
   }
 }
 
-// Bill the lumberjack. Every kill queues one tree; Bill chops it down, the tokens it saved float off, a stump stays.
-const bill = { queue: [], busy: false, felled: 0 };
-function billShow() { $("bill").hidden = false; }
-function billReset() { bill.queue = []; bill.felled = 0; $("bill").querySelector(".stumps").innerHTML = `<span class="count">Bill is waiting for the first bad one.</span>`; billShow(); }
-function billChop(savedTokens) { bill.queue.push(savedTokens); billShow(); if (!bill.busy) billNext(); }
-function billNext() {
-  const saved = bill.queue.shift(); if (saved === undefined) { bill.busy = false; return; }
-  bill.busy = true;
-  const el = $("bill"); const tag = el.querySelector(".tag");
-  tag.textContent = saved != null ? `−${fmt(saved)} tokens` : "chop";
-  el.classList.remove("fall"); el.querySelector(".tree").style.opacity = ""; void el.offsetWidth;
-  el.classList.add("chop");
-  setTimeout(() => { el.classList.remove("chop"); el.classList.add("fall"); }, 1050);
-  setTimeout(() => {
-    el.classList.remove("fall"); bill.felled++;
-    const st = el.querySelector(".stumps"); st.innerHTML = Array.from({ length: Math.min(bill.felled, 40) }, () => "<i></i>").join("") + `<span class="count">${bill.felled} felled</span>`;
-    billNext();
-  }, 1050 + 900);
-}
-window.billChop = billChop;
+
+
+// Bill the lumberjack. One tree falls for every stopped generation; the stump stays and the tally adds up what the stops saved.
+const forest = (() => {
+  const NS = "http://www.w3.org/2000/svg", H = 140, GROUND = 118;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let svg, root, fx, bill, body, arm, legL, legR, W = 0, trees = [], billX = 40, facing = 1;
+  let queue = [], busy = false, gen = 0, felled = 0, saved = 0, oops = 0;
+  const mk = (tag, attrs = {}, parent) => { const n = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); if (parent) parent.appendChild(n); return n; };
+  const ease = { lin: t => t, out: t => 1 - (1 - t) ** 3, in: t => t * t * t, inOut: t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2 };
+  const speed = () => Math.min(3.5, 1 + queue.length * 0.5);
+  const tween = (ms, fn, e = ease.inOut) => new Promise(res => { const d = ms / speed(), t0 = performance.now(); const step = now => { const t = Math.min(1, (now - t0) / d); fn(e(t)); t < 1 ? requestAnimationFrame(step) : res(); }; requestAnimationFrame(step); });
+  const rnd = (a, b) => a + Math.random() * (b - a);
+
+  function build() {
+    svg = $("forestSvg"); W = Math.max(360, Math.round(svg.getBoundingClientRect().width || 760));
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.innerHTML = "";
+    const defs = mk("defs", {}, svg); const pat = mk("pattern", { id: "plaid", width: 7, height: 7, patternUnits: "userSpaceOnUse" }, defs);
+    mk("rect", { width: 7, height: 2, fill: "rgba(0,0,0,.28)" }, pat); mk("rect", { width: 2, height: 7, fill: "rgba(0,0,0,.28)" }, pat);
+    root = mk("g", {}, svg);
+    mk("path", { class: "hill", d: `M0,${GROUND} Q${W * .12},${GROUND - 46} ${W * .28},${GROUND - 14} T${W * .58},${GROUND - 10} T${W},${GROUND - 22} L${W},${GROUND} Z` }, root);
+    for (let i = 0; i < 3; i++) { const g = mk("g", { class: "cloud", style: `animation-duration:${70 + i * 30}s;animation-delay:${-i * 26}s` }, root); const y = 20 + i * 13; mk("ellipse", { cx: 0, cy: y, rx: 22, ry: 8 }, g); mk("ellipse", { cx: 15, cy: y - 5, rx: 14, ry: 9 }, g); mk("ellipse", { cx: -14, cy: y - 2, rx: 12, ry: 7 }, g); }
+    mk("rect", { class: "ground", x: 0, y: GROUND, width: W, height: H - GROUND }, root);
+    mk("rect", { class: "ground-edge", x: 0, y: GROUND, width: W, height: 3 }, root);
+    const n = Math.max(4, Math.floor((W - 130) / 60)), gap = (W - 150) / (n - 1);
+    trees = Array.from({ length: n }, (_, i) => makeTree(120 + i * gap, i));
+    makeBill(); fx = mk("g", {}, root);
+    billX = 40; facing = 1; placeBill();
+  }
+
+  function makeTree(x, i) {
+    const s = 0.82 + ((i * 37) % 10) / 28;
+    const g = mk("g", { transform: `translate(${x} ${GROUND})` }, root);
+    const stump = mk("g", { opacity: 0 }, g);
+    mk("rect", { class: "trunk", x: -6 * s, y: -9, width: 12 * s, height: 9, rx: 1.5 }, stump);
+    mk("ellipse", { class: "rings", cx: 0, cy: -9, rx: 6 * s, ry: 2.2 }, stump);
+    const fall = mk("g", {}, g);
+    mk("rect", { class: "trunk", x: -5 * s, y: -27 * s, width: 10 * s, height: 27 * s }, fall);
+    const notch = mk("polygon", { class: "notch", points: `${-5 * s},${-14} ${-5 * s},${-14} ${-5 * s},${-14}` }, fall);
+    const canopy = mk("g", { class: `canopy c${i % 3}`, style: `animation-delay:${-(i % 5) * .8}s` }, fall);
+    mk("polygon", { points: `0,${-94 * s} ${-19 * s},${-52 * s} ${19 * s},${-52 * s}` }, canopy);
+    mk("polygon", { points: `0,${-78 * s} ${-25 * s},${-36 * s} ${25 * s},${-36 * s}` }, canopy);
+    mk("polygon", { points: `0,${-62 * s} ${-31 * s},${-22 * s} ${31 * s},${-22 * s}` }, canopy);
+    return { x, s, g, fall, stump, notch, down: false };
+  }
+
+  function makeBill() {
+    bill = mk("g", {}, root); body = mk("g", {}, bill);
+    const leg = (hx) => { const hip = mk("g", { transform: `translate(${hx} -20)` }, body); const sw = mk("g", {}, hip); mk("rect", { class: "jeans", x: -3, y: 0, width: 6, height: 17, rx: 2 }, sw); mk("rect", { class: "boot", x: -3, y: 15, width: 9, height: 5, rx: 2 }, sw); return sw; };
+    legL = leg(-4); legR = leg(4);
+    mk("rect", { class: "flannel", x: -11, y: -47, width: 22, height: 29, rx: 5 }, body);
+    mk("rect", { x: -11, y: -47, width: 22, height: 29, rx: 5, fill: "url(#plaid)" }, body);
+    mk("rect", { class: "belt", x: -11, y: -23, width: 22, height: 4 }, body);
+    const head = mk("g", { class: "bill-head" }, body);
+    mk("circle", { class: "skin", cx: 1, cy: -57, r: 10 }, head);
+    mk("path", { class: "beard", d: "M-8,-56 Q1,-38 11,-56 L11,-52 Q1,-41 -8,-52 Z" }, head);
+    mk("circle", { class: "eye", cx: 5.5, cy: -59, r: 1.6 }, head);
+    mk("path", { class: "hat", d: "M-9,-61 Q1,-76 11,-61 Z" }, head);
+    mk("rect", { class: "hat-band", x: -10, y: -63, width: 22, height: 4.5, rx: 2 }, head);
+    mk("circle", { class: "hat", cx: 1, cy: -73, r: 3.2 }, head);
+    const shoulder = mk("g", { transform: "translate(4 -41)" }, body);
+    arm = mk("g", {}, shoulder);
+    mk("rect", { class: "flannel", x: -2, y: -2.5, width: 14, height: 5.5, rx: 2.7 }, arm);
+    mk("rect", { class: "handle", x: 10.3, y: -26, width: 3.4, height: 34, rx: 1.5 }, arm);
+    mk("path", { class: "axehead", d: "M8,-28 L23,-33 L25,-19 L11,-19 Z" }, arm);
+    mk("circle", { class: "skin", cx: 12, cy: 1, r: 3 }, arm);
+    setArm(18);
+  }
+
+  const placeBill = () => bill.setAttribute("transform", `translate(${billX} ${GROUND}) scale(${facing} 1)`);
+  const setArm = d => arm.setAttribute("transform", `rotate(${d})`);
+  const setLegs = d => { legL.setAttribute("transform", `rotate(${d})`); legR.setAttribute("transform", `rotate(${-d})`); };
+
+  async function walk(to, g) {
+    const from = billX, dist = Math.abs(to - from); if (dist < 1) return;
+    facing = to > from ? 1 : -1;
+    await tween(Math.max(260, dist / 0.17), t => { if (g !== gen) return; billX = from + (to - from) * t; const ph = Math.sin(t * dist / 7); setLegs(ph * 26); body.setAttribute("transform", `translate(0 ${-Math.abs(ph) * 1.8})`); placeBill(); }, ease.lin);
+    setLegs(0); body.setAttribute("transform", ""); facing = 1; placeBill();
+  }
+
+  function chips(tree) {
+    for (let i = 0; i < 7; i++) {
+      const c = mk("rect", { class: "chip", width: rnd(2, 4), height: rnd(1.5, 3) }, fx);
+      const x0 = tree.x - 5 * tree.s, y0 = GROUND - 14, vx = rnd(-55, -10), vy = rnd(-70, -30), r0 = rnd(0, 360);
+      tween(rnd(450, 700), t => { c.setAttribute("x", x0 + vx * t); c.setAttribute("y", y0 + vy * t + 120 * t * t); c.setAttribute("transform", `rotate(${r0 + 540 * t} ${x0 + vx * t} ${y0 + vy * t + 120 * t * t})`); c.setAttribute("opacity", 1 - t); }, ease.lin).then(() => c.remove());
+    }
+  }
+
+  function shakeTree(tree) { return tween(180, t => tree.fall.setAttribute("transform", `rotate(${Math.sin(t * Math.PI * 4) * 2.4 * (1 - t)})`), ease.lin); }
+
+  function dust(x) {
+    for (let i = 0; i < 6; i++) {
+      const d = mk("circle", { class: "dust", cx: x, cy: GROUND - 2, r: 2 }, fx); const dx = rnd(-30, 30), dy = rnd(-14, -4);
+      tween(rnd(600, 900), t => { d.setAttribute("cx", x + dx * t); d.setAttribute("cy", GROUND - 2 + dy * t); d.setAttribute("r", 2 + 9 * t); d.setAttribute("opacity", .7 * (1 - t)); }, ease.out).then(() => d.remove());
+    }
+  }
+
+  function bubble(text) {
+    const g = mk("g", { class: "bubble" }, fx); const x = billX + 8, y = GROUND - 104;
+    mk("rect", { x, y, width: 62, height: 20, rx: 9 }, g); mk("path", { d: `M${x + 10},${y + 19} l-4,9 l11,-9 Z` }, g);
+    mk("text", { x: x + 31, y: y + 14, "text-anchor": "middle" }, g).textContent = text;
+    tween(160, t => g.setAttribute("transform", `translate(${x + 31} ${y + 10}) scale(${.4 + .6 * t}) translate(${-(x + 31)} ${-(y + 10)})`), ease.out);
+    setTimeout(() => tween(200, t => g.setAttribute("opacity", 1 - t)).then(() => g.remove()), 1000);
+  }
+
+  function floatTag(tree, label, bad) {
+    const t0 = mk("text", { class: `savetag${bad ? " bad" : ""}`, x: tree.x, y: GROUND - 30, "text-anchor": "middle" }, fx); t0.textContent = label;
+    tween(1600, t => { t0.setAttribute("y", GROUND - 30 - 48 * t); t0.setAttribute("opacity", t < .7 ? 1 : 1 - (t - .7) / .3); }, ease.out).then(() => t0.remove());
+  }
+
+  async function chop(tree, amount, bad, g) {
+    await walk(tree.x - 34, g); if (g !== gen) return;
+    await tween(240, t => setArm(18 - 88 * t), ease.out);                         // wind up behind the head
+    for (let k = 0; k < 3; k++) {
+      if (g !== gen) return;
+      await tween(110, t => setArm(-70 + 168 * t), ease.in);                      // swing into the trunk
+      chips(tree); shakeTree(tree);
+      const depth = (k + 1) / 3 * 6 * tree.s;
+      tree.notch.setAttribute("points", `${-5 * tree.s},${-18} ${-5 * tree.s + depth},${-14} ${-5 * tree.s},${-10}`);
+      await tween(k < 2 ? 210 : 160, t => setArm(98 - (k < 2 ? 168 : 80) * t), ease.out);
+    }
+    bubble(bad ? "oops!" : "TIMBER!");
+    await tween(140, t => setArm(18), ease.lin);
+    await tween(850, t => tree.fall.setAttribute("transform", `rotate(${86 * t})`), ease.in);   // the fall
+    dust(tree.x + 78 * tree.s); shakeScene();
+    await tween(240, t => tree.fall.setAttribute("transform", `rotate(${86 - Math.sin(t * Math.PI) * 6})`), ease.out);
+    floatTag(tree, bad ? "that one was fine" : (amount != null ? `−${fmt(amount)} tokens` : "chop"), bad);
+    tree.stump.setAttribute("opacity", 1);
+    await tween(420, t => tree.fall.setAttribute("opacity", 1 - t), ease.lin);
+    tree.down = true;
+  }
+
+  function shakeScene() { tween(260, t => root.setAttribute("transform", `translate(${Math.sin(t * Math.PI * 6) * 2.2 * (1 - t)} ${Math.cos(t * Math.PI * 5) * 1.2 * (1 - t)})`), ease.lin).then(() => root.setAttribute("transform", "")); }
+
+  function fellNow(tree) { tree.down = true; tree.fall.setAttribute("opacity", 0); tree.stump.setAttribute("opacity", 1); }
+
+  async function regrow(g) {
+    await walk(40, g); if (g !== gen) return;
+    await Promise.all(trees.map((tree, i) => new Promise(r => setTimeout(r, i * 70)).then(() => {
+      tree.down = false; tree.stump.setAttribute("opacity", 0); tree.fall.setAttribute("opacity", 1);
+      tree.notch.setAttribute("points", `${-5 * tree.s},-14 ${-5 * tree.s},-14 ${-5 * tree.s},-14`);
+      return tween(420, t => tree.fall.setAttribute("transform", `scale(${Math.max(.01, t)})`), ease.out).then(() => tree.fall.setAttribute("transform", ""));
+    })));
+  }
+
+  function tally() {
+    const price = config?.outputPricePerMillion; const d = price != null ? ` · −$${(saved / 1e6 * price).toFixed(4)}` : "";
+    $("forestTally").textContent = felled ? `${felled} felled · −${fmt(saved)} tokens${d}${oops ? ` · ${oops} by mistake` : ""}${queue.length ? ` · ${queue.length} in line` : ""}` : (queue.length ? `${queue.length} in line` : "Bill is waiting for the first bad generation.");
+  }
+
+  async function run() {
+    if (busy) return; busy = true; const g = gen;
+    while (queue.length && g === gen) {
+      const job = queue.shift(); tally();
+      let tree = trees.find(t => !t.down);
+      if (!tree) { if (!reduce) await regrow(g); else trees.forEach(t => { t.down = false; t.stump.setAttribute("opacity", 0); t.fall.setAttribute("opacity", 1); }); tree = trees.find(t => !t.down); }
+      if (g !== gen) break;
+      if (reduce) fellNow(tree); else await chop(tree, job.amount, job.bad, g);
+      if (g !== gen) break;
+      felled++; if (job.bad) oops++; else if (job.amount != null) saved += job.amount;
+      tally();
+    }
+    if (g === gen) { busy = false; if (!reduce) await tween(200, t => setArm(18)); }
+  }
+
+  let resizeTimer = null;
+  window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { if (busy) return; const f = felled; build(); trees.slice(0, f % trees.length || (f ? trees.length : 0)).forEach(fellNow); const next = trees.find(t => !t.down); if (next) { billX = next.x - 34; placeBill(); } }, 250); });
+
+  return {
+    init() { build(); tally(); },
+    reset() { gen++; busy = false; queue = []; felled = 0; saved = 0; oops = 0; build(); tally(); },
+    chop(amount, bad = false) { queue.push({ amount, bad }); tally(); run(); },
+    restore(kills, tokens) { felled = kills; saved = tokens ?? 0; const k = kills % trees.length; trees.slice(0, k).forEach(fellNow); const next = trees.find(t => !t.down); if (next) { billX = next.x - 34; placeBill(); } tally(); if (kills) $("forestTally").textContent += " · last run"; },
+  };
+})();
+window.forest = forest;
 
 // The pace switch works at any time: before a run it sets the width, during a run it changes it at the next task, and it is remembered.
 try { const saved = localStorage.getItem("oneAtATime"); if (saved !== null) $("oneAtATime").checked = saved === "1"; } catch {}

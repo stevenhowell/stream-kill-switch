@@ -101,7 +101,7 @@ async function runPhase(phase, { limit, concurrency }, send) {
       else if (ev.type === "judge-error") send("judge-error", { id: task.id, phase, attempt, error: ev.error });
       else if (ev.type === "retry") send("retry-start", { id: task.id, phase, attempt, note: ev.note, previous: ev.previous });
     };
-    const common = { createStream, params: genParams(task), judge, rules, task: task.task, context: task.context, mode, threshold: state.config.threshold, onEvent };
+    const common = { createStream, params: genParams(task), judge, rules, task: task.task, context: task.context, mode, threshold: state.config.threshold, onEvent, maxMs: 60000, judgeTimeoutMs: 8000 };
     try {
       if (phase === "live") {
         // Live: on a kill, retry once with the reason fed back (the partial as an assistant turn, the reviewer's finding as a user turn).
@@ -117,6 +117,8 @@ async function runPhase(phase, { limit, concurrency }, send) {
         record = await runWithKillSwitch(common);
       }
     } catch (err) {
+      // Count it as done so the phase always ends; the card shows the error.
+      running.done++;
       send("task-error", { id: task.id, phase, error: String(err?.message ?? err) });
       return;
     }

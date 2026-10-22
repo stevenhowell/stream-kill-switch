@@ -145,3 +145,14 @@ test("runWithRetry with noteRole system puts the note in a system turn after a u
   await runWithRetry({ createStream, params: { messages: [{ role: "user", content: "write f" }] }, judge, rules: [{ id: "stub", question: "q" }], mode: "kill", noteRole: "system" });
   assert.deepEqual(seen[1].messages.map((m) => m.role), ["user", "assistant", "user", "system"]);
 });
+
+test("a judge that never answers times out as a judge error and the run finishes", async () => {
+  const judge = () => new Promise(() => {});
+  const record = await runWithKillSwitch({ createStream: () => new FakeStream(chunksOf(GOOD, 30)), params: {}, judge, rules: [{ id: "r", question: "q" }], mode: "shadow", judgeTimeoutMs: 30 });
+  assert.equal(record.killed, false);
+  assert.ok(record.judgeErrors.some((e) => /timed out/.test(e)));
+});
+
+test("a generation longer than maxMs is aborted and reported as an error", async () => {
+  await assert.rejects(() => runWithKillSwitch({ createStream: () => new FakeStream(chunksOf(GOOD, 5), { delayMs: 5 }), params: {}, mode: "off", maxMs: 40 }), /timed out after 40 ms/);
+});
