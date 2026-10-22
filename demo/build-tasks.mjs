@@ -19,16 +19,18 @@ export const FAULTS = {
   stub: "Leave the body as a TODO comment followed by `raise NotImplementedError`.",
   prose: "Before the code, explain your approach in two sentences of plain prose.",
 };
-const PLANT_AT = { 2: "javascript", 5: "fence", 8: "bad_import", 11: "wrong_name", 14: "stub", 17: "prose" };
+// Plant on positions 2, 5, 8 of every ten, cycling through the six faults: 6 of 20, 30 of 100.
+const FAULT_ORDER = Object.keys(FAULTS);
+const plantFor = (i) => ([2, 5, 8].includes(i % 10) ? FAULT_ORDER[(Math.floor(i / 10) * 3 + [2, 5, 8].indexOf(i % 10)) % FAULT_ORDER.length] : null);
 
 // The 20 problems with the longest reference solutions, so a kill at token ~50 has a visible tail to save. Said on screen.
 // Usage: node demo/build-tasks.mjs [count=20] [planted=yes|no] [out=tasks.json]
-const COUNT = Number(process.argv[2] ?? 20);
+const COUNT = Number(process.argv[2] ?? 100);
 const PLANTED = (process.argv[3] ?? "yes") !== "no";
 const OUT = process.argv[4] ?? "tasks.json";
 const picked = [...rows].sort((a, b) => b.canonical_solution.length - a.canonical_solution.length).slice(0, COUNT).sort((a, b) => Number(a.task_id.split('/')[1]) - Number(b.task_id.split('/')[1]));
 const tasks = picked.map((r, i) => {
-  const planted = PLANTED ? (PLANT_AT[i] ?? null) : null;
+  const planted = PLANTED ? plantFor(i) : null;
   const signature = r.prompt.split("\n").find((l) => l.startsWith("def ")) ?? "";
   return {
     id: r.task_id,

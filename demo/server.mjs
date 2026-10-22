@@ -40,7 +40,14 @@ const runsDir = process.env.DEMO_RUNS ? process.env.DEMO_RUNS.replace(/\/?$/, "/
 if (!existsSync(runsDir)) mkdirSync(runsDir, { recursive: true });
 const latestPath = runsDir + "latest.json";
 // With no run yet, show the committed sample run (2026-10-21 rehearsal) so the page is not empty; the next control run replaces it.
-let state = existsSync(latestPath) ? JSON.parse(readFileSync(latestPath, "utf8")) : existsSync(here + "sample-run.json") ? { ...JSON.parse(readFileSync(here + "sample-run.json", "utf8")), sample: true } : null;
+function loadState(path, extra = {}) {
+  if (!existsSync(path)) return null;
+  const st = JSON.parse(readFileSync(path, "utf8"));
+  // A saved run only counts if it is for this task set.
+  const same = Array.isArray(st.tasks) && st.tasks.length === tasks.length && st.tasks.every((t, i) => t.id === tasks[i].id);
+  return same ? { ...st, ...extra } : null;
+}
+let state = loadState(latestPath) ?? loadState(here + "sample-run.json", { sample: true });
 function freshState() {
   return { config, startedAt: new Date().toISOString(), tasks: tasks.map((t) => ({ id: t.id, entry_point: t.entry_point, planted: t.planted, signature: t.context.required_signature, control: null, live: null })) };
 }
