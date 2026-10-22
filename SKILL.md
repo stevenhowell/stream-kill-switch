@@ -48,6 +48,15 @@ const record = await runWithKillSwitch({
 
 The core has no SDK imports, so it runs in tests with a fake stream and a fake judge (`test/`). `runWithKillSwitch` throws on a stream error that is not the abort it caused.
 
+## Retry with the reason
+
+A kill on its own just saves the tail. `runWithRetry` closes the loop: when an attempt is killed, it adds the partial as an assistant turn and the reviewer's finding as a user turn ("Your previous attempt was stopped after about 90 tokens. A reviewer found: \"the visible code is a stub\" (probability 0.99). Start again…"), then streams again under the same switch. `maxRetries` defaults to 1. The result has every attempt, `retried`, and `fixed` (the last attempt was not killed; whether it is *right* is still the referee's call). Use `explain` to word the note yourself.
+
+```js
+import { runWithRetry } from "./scripts/lib/core.mjs";
+const { attempts, final, retried, fixed } = await runWithRetry({ ...sameOptionsAsAbove, maxRetries: 1 });
+```
+
 ## Use the CLI
 
 ```bash

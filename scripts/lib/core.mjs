@@ -165,3 +165,39 @@ export async function runWithKillSwitch({
   onEvent({ type: "done", record });
   return record;
 }
+
+/** The note the generator gets when it is retried after a kill. Plain words: what was seen, which rule, what to do instead. */
+export function explainKill(record, rules) {
+  const rule = rules.find((r) => r.id === record.kill?.rule);
+  const why = rule ? rule.question : record.kill?.rule;
+  return `Your previous attempt was stopped after about ${record.kill.atTokens} tokens. A reviewer found: "${why}" (probability ${record.kill.p.toFixed(2)}). Start again from the beginning and write the complete answer without that problem.`;
+}
+
+/**
+ * Run under the kill switch and, when killed, retry with the reason fed back as conversation:
+ * the partial as an assistant turn, then a user turn with the reviewer's finding. Up to maxRetries extra attempts.
+ * Returns { attempts: [record...], final: record, retried: boolean, fixed: boolean|null }.
+ */
+export async function runWithRetry({ maxRetries = 1, explain = explainKill, ...opts }) {
+  const attempts = [];
+  let params = opts.params;
+  for (let i = 0; i <= maxRetries; i++) {
+    const record = await runWithKillSwitch({ ...opts, params, onEvent: (e) => opts.onEvent?.({ ...e, attempt: i }) });
+    record.attempt = i;
+    attempts.push(record);
+    if (!record.killed) break;
+    if (i === maxRetries) break;
+    const note = explain(record, opts.rules ?? []);
+    record.retryNote = note;
+    params = {
+      ...params,
+      messages: [
+        ...params.messages,
+        { role: "assistant", content: record.text || "(nothing yet)" },
+        { role: "user", content: note },
+      ],
+    };
+  }
+  const final = attempts.at(-1);
+  return { attempts, final, retried: attempts.length > 1, fixed: attempts.length > 1 ? !final.killed : null };
+}

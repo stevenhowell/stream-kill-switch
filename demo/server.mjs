@@ -3,7 +3,7 @@
 import { createServer } from "node:http";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { runWithKillSwitch, DEFAULTS, median } from "../scripts/lib/core.mjs";
+import { runWithKillSwitch, runWithRetry, DEFAULTS, median } from "../scripts/lib/core.mjs";
 import { makeClaudeClient, makeClaudeStreamFactory, makeCountTokens } from "../scripts/lib/stream.mjs";
 import { makeJevJudge, JEV_MODEL } from "../scripts/lib/judges/jev.mjs";
 import { makeClaudeJudge, CLAUDE_JUDGE_MODEL } from "../scripts/lib/judges/claude.mjs";
@@ -54,7 +54,8 @@ function scoreboard() {
     live: state.tasks.some((t) => t.live) ? summarizeLive(state.tasks.filter((t) => t.control && t.live)) : null,
     overshootTokens: overshoot,
     judgeMsMedian: median(state.tasks.flatMap((t) => [...(t.control?.checkpoints ?? []), ...(t.live?.checkpoints ?? [])].map((c) => c.ms))),
-    judgeCalls: state.tasks.reduce((n, t) => n + (t.control?.checkpoints?.length ?? 0) + (t.live?.checkpoints?.length ?? 0), 0),
+    judgeCalls: state.tasks.reduce((n, t) => n + (t.control?.checkpoints?.length ?? 0) + (t.live?.checkpoints?.length ?? 0) + (t.live?.retry?.checkpoints?.length ?? 0), 0),
+    retries: { tried: state.tasks.filter((t) => t.live?.retry).length, finished: state.tasks.filter((t) => t.live?.retry && !t.live.retry.killed).length, passed: state.tasks.filter((t) => t.live?.retry?.passed === true).length, tokens: state.tasks.reduce((n, t) => n + (t.live?.retry?.outputTokens ?? 0), 0) },
   };
 }
 
@@ -73,18 +74,29 @@ async function runPhase(phase, { limit, concurrency }, send, shouldStop) {
   await pool(list, concurrency, async (task) => {
     const ts = taskState(task.id);
     const mode = phase === "control" ? "shadow" : "kill";
-    let record;
+    let record, retry = null;
+    const onEvent = (ev) => {
+      const attempt = ev.attempt ?? 0;
+      if (ev.type === "text") send("text", { id: task.id, phase, attempt, text: ev.text, estTokens: ev.estTokens });
+      else if (ev.type === "checkpoint") send("checkpoint", { id: task.id, phase, attempt, at: ev.at, ms: ev.ms, rules: ev.rules, decision: ev.decision });
+      else if (ev.type === "kill") send("kill", { id: task.id, phase, attempt, rule: ev.rule, p: ev.p, atTokens: ev.atTokens, atMs: ev.atMs });
+      else if (ev.type === "judge-error") send("judge-error", { id: task.id, phase, attempt, error: ev.error });
+    };
+    const common = { createStream, params: genParams(task), judge, rules, task: task.task, context: task.context, mode, threshold: state.config.threshold, onEvent };
     try {
-      record = await runWithKillSwitch({
-        createStream, params: genParams(task), judge, rules, task: task.task, context: task.context, mode, threshold: state.config.threshold,
-        countTokens: phase === "live" ? countTokens : null,
-        onEvent: (ev) => {
-          if (ev.type === "text") send("text", { id: task.id, phase, text: ev.text, estTokens: ev.estTokens });
-          else if (ev.type === "checkpoint") send("checkpoint", { id: task.id, phase, at: ev.at, ms: ev.ms, rules: ev.rules, decision: ev.decision });
-          else if (ev.type === "kill") send("kill", { id: task.id, phase, rule: ev.rule, p: ev.p, atTokens: ev.atTokens, atMs: ev.atMs });
-          else if (ev.type === "judge-error") send("judge-error", { id: task.id, phase, error: ev.error });
-        },
-      });
+      if (phase === "live") {
+        // Live: on a kill, retry once with the reason fed back (the partial as an assistant turn, the reviewer's finding as a user turn).
+        const out = await runWithRetry({ ...common, countTokens, maxRetries: 1 });
+        record = out.attempts[0];
+        if (out.retried) {
+          const r = out.final;
+          const referee = r.killed ? null : await runTests({ code: r.text, test: task.test, entry_point: task.entry_point });
+          retry = { note: record.retryNote, killed: r.killed, kill: r.kill, text: r.text, outputTokens: r.usage?.output_tokens ?? null, estTokens: r.estTokens, elapsedMs: r.elapsedMs, checkpoints: r.checkpoints, passed: referee?.passed ?? null, referee };
+          send("retry-done", { id: task.id, retry });
+        }
+      } else {
+        record = await runWithKillSwitch(common);
+      }
     } catch (err) {
       send("task-error", { id: task.id, phase, error: String(err?.message ?? err) });
       return;
@@ -94,7 +106,7 @@ async function runPhase(phase, { limit, concurrency }, send, shouldStop) {
       const referee = await runTests({ code: record.text, test: task.test, entry_point: task.entry_point });
       ts.control = { ...summary, outputTokens: record.usage?.output_tokens ?? null, thinkingTokens: record.usage?.output_tokens_details?.thinking_tokens ?? null, usage: record.usage, passed: referee.passed, referee };
     } else {
-      ts.live = { ...summary, usage: record.usage };
+      ts.live = { ...summary, usage: record.usage, retry };
     }
     save();
     send("task-done", { id: task.id, phase, task: ts, scoreboard: scoreboard() });

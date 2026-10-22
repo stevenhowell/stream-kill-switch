@@ -113,3 +113,26 @@ test("stopAfter ends judging once the opening is past", async () => {
   });
   assert.deepEqual(record.checkpoints.map((c) => c.at), [50, 150, 250]);
 });
+
+test("runWithRetry feeds the kill reason back and the retry carries the partial and the note", async () => {
+  const { runWithRetry, explainKill } = await import("../scripts/lib/core.mjs");
+  const seen = [];
+  const createStream = (params) => { seen.push(params); return new FakeStream(chunksOf(seen.length === 1 ? BAD : GOOD, 30)); };
+  const judge = fakeJudge({ score: ({ partial }) => ({ stub: /TODO|NotImplemented/.test(partial) ? 0.95 : 0.05 }) });
+  const rules = [{ id: "stub", question: "is a stub" }];
+  const out = await runWithRetry({ createStream, params: { messages: [{ role: "user", content: "write f" }] }, judge, rules, mode: "kill" });
+  assert.equal(out.attempts.length, 2);
+  assert.equal(out.retried, true); assert.equal(out.fixed, true);
+  assert.equal(out.attempts[0].killed, true); assert.equal(out.final.killed, false);
+  assert.equal(seen[1].messages.length, 3, "prompt, the partial as assistant, the note as user");
+  assert.equal(seen[1].messages[1].role, "assistant");
+  assert.match(seen[1].messages[2].content, /stopped after about \d+ tokens.*is a stub/);
+  assert.equal(explainKill(out.attempts[0], rules), out.attempts[0].retryNote);
+});
+
+test("runWithRetry stops after maxRetries and reports fixed=false", async () => {
+  const { runWithRetry } = await import("../scripts/lib/core.mjs");
+  const judge = fakeJudge({ score: () => ({ stub: 0.95 }) });
+  const out = await runWithRetry({ createStream: () => new FakeStream(chunksOf(BAD, 30)), params: { messages: [{ role: "user", content: "x" }] }, judge, rules: [{ id: "stub", question: "q" }], mode: "kill", maxRetries: 2 });
+  assert.equal(out.attempts.length, 3); assert.equal(out.fixed, false);
+});

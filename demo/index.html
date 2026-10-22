@@ -32,6 +32,8 @@
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; padding: 0 20px 24px; }
   .card { border: 1px solid var(--line); border-radius: 12px; background: var(--card); display: flex; flex-direction: column; min-height: 230px; overflow: hidden; }
   .card.killed { border-color: var(--red); box-shadow: 0 0 0 2px color-mix(in srgb, var(--red) 25%, transparent); }
+  .card.fixed { border-color: var(--green); box-shadow: 0 0 0 2px color-mix(in srgb, var(--green) 25%, transparent); }
+  .card.fixed pre { background: color-mix(in srgb, var(--green) 7%, var(--code)); }
   .card.done { border-color: color-mix(in srgb, var(--green) 55%, var(--line)); }
   .card.streaming { border-color: var(--accent); }
   .head { display: flex; justify-content: space-between; gap: 8px; padding: 8px 10px; font-size: 12px; }
@@ -112,17 +114,24 @@ function paintTask(t, phase) {
   const rec = t[phase]; if (!rec) return;
   el.querySelector("pre").textContent = rec.text ?? "";
   const last = rec.checkpoints?.at(-1); setMeter(el, last?.rules);
-  el.classList.remove("streaming", "killed", "done");
+  el.classList.remove("streaming", "killed", "done", "fixed");
   const foot = el.querySelector(".foot");
   if (rec.killed) {
     el.classList.add("killed");
-    foot.innerHTML = `<span class="state">Stopped at ~${rec.kill.atTokens} tokens (estimate${rec.countedTokens !== null && rec.countedTokens !== undefined ? `, counted ${rec.countedTokens}` : ""})</span> · ${rec.kill.rule} ${rec.kill.p.toFixed(2)} at ${(rec.kill.atMs / 1000).toFixed(1)} s` + controlLine(t);
+    foot.innerHTML = `<span class="state">Stopped at ~${rec.kill.atTokens} tokens (estimate${rec.countedTokens !== null && rec.countedTokens !== undefined ? `, counted ${rec.countedTokens}` : ""})</span> · ${rec.kill.rule} ${rec.kill.p.toFixed(2)} at ${(rec.kill.atMs / 1000).toFixed(1)} s` + retryLine(rec) + controlLine(t);
+    if (rec.retry && !rec.retry.killed) { el.querySelector("pre").textContent = rec.retry.text; el.classList.add("fixed"); }
   } else {
     el.classList.add("done");
     const tok = rec.outputTokens !== undefined && rec.outputTokens !== null ? `${rec.outputTokens} tokens (real)` : `~${rec.estTokens} tokens (estimate)`;
     const ref = phase === "control" && rec.referee ? ` · tests ${rec.referee.status}` : "";
     foot.innerHTML = `<span class="state">${phase === "control" ? "Control" : "Finished"}</span> · ${tok}${ref} · ${(rec.elapsedMs / 1000).toFixed(1)} s` + (phase === "live" ? controlLine(t) : "");
   }
+}
+function retryLine(rec) {
+  if (!rec.retry) return "";
+  const r = rec.retry;
+  if (r.killed) return `<br><b>Retried with the reason:</b> stopped again (${r.kill.rule} ${r.kill.p.toFixed(2)})`;
+  return `<br><b>Retried with the reason:</b> finished, ${fmt(r.outputTokens)} tokens (real)${r.referee ? `, tests ${r.referee.status}` : ""}, ${(r.elapsedMs / 1000).toFixed(1)} s`;
 }
 function controlLine(t) { return t.control ? `<br>control: ${fmt(t.control.outputTokens)} tokens, tests ${t.control.referee?.status ?? "not run"}` : ""; }
 
@@ -136,6 +145,9 @@ function renderBoard() {
     tiles.push(tile("Tokens not generated", fmt(l.tokensNotGenerated), "vs each task's control length (real)" + money(l.tokensNotGenerated)));
     tiles.push(tile("Tokens wasted", fmt(l.tokensWasted), "paid before a kill on a clean brief"));
     tiles.push(tile("Net", (l.net >= 0 ? "+" : "") + fmt(l.net), `tokens${money(l.net)}`));
+  }
+  if (sb.retries && sb.retries.tried) {
+    tiles.push(tile("Retried with the reason", `${sb.retries.passed} of ${sb.retries.tried}`, `finished and passed tests · ${sb.retries.finished} finished · ${fmt(sb.retries.tokens)} tokens spent on retries (real)`));
   }
   if (sb.replay) {
     const r = sb.replay;
@@ -158,8 +170,8 @@ function run(phase) {
   running = phase; $("runControl").disabled = true; $("runLive").disabled = true; $("empty").hidden = true;
   const live = {}; let done = 0, total = tasks.length;
   const es = new EventSource(`/run?phase=${phase}`);
-  es.addEventListener("start", (e) => { const d = JSON.parse(e.data); total = d.tasks.length; for (const t of d.tasks) { const el = cards.get(t.id); el.classList.remove("killed", "done", "streaming"); el.querySelector("pre").textContent = ""; setMeter(el, null); el.querySelector(".foot").innerHTML = `<span class="state">Queued</span>`; } $("status").textContent = `${phase === "control" ? "Control" : "Live"}: 0 of ${total} done`; });
-  es.addEventListener("text", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); el.classList.add("streaming"); const pre = el.querySelector("pre"); pre.textContent += d.text; pre.scrollTop = pre.scrollHeight; el.querySelector(".foot").innerHTML = `<span class="state">Streaming</span> · ~${d.estTokens} tokens`; });
+  es.addEventListener("start", (e) => { const d = JSON.parse(e.data); total = d.tasks.length; for (const t of d.tasks) { const el = cards.get(t.id); delete el.dataset.attempt; el.classList.remove("killed", "done", "streaming", "fixed"); el.querySelector("pre").textContent = ""; setMeter(el, null); el.querySelector(".foot").innerHTML = `<span class="state">Queued</span>`; } $("status").textContent = `${phase === "control" ? "Control" : "Live"}: 0 of ${total} done`; });
+  es.addEventListener("text", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); const pre = el.querySelector("pre"); if (d.attempt && el.dataset.attempt !== String(d.attempt)) { el.dataset.attempt = String(d.attempt); pre.textContent = ""; el.classList.remove("killed"); } el.classList.add("streaming"); pre.textContent += d.text; pre.scrollTop = pre.scrollHeight; el.querySelector(".foot").innerHTML = d.attempt ? `<span class="state">Retrying with the reason</span> · ~${d.estTokens} tokens` : `<span class="state">Streaming</span> · ~${d.estTokens} tokens`; });
   es.addEventListener("checkpoint", (e) => { const d = JSON.parse(e.data); setMeter(cards.get(d.id), d.rules); });
   es.addEventListener("kill", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); el.classList.remove("streaming"); el.classList.add("killed"); el.querySelector(".foot").innerHTML = `<span class="state">Stopped at ~${d.atTokens} tokens (estimate)</span> · ${d.rule} ${d.p.toFixed(2)} at ${(d.atMs / 1000).toFixed(1)} s`; });
   es.addEventListener("task-done", (e) => { const d = JSON.parse(e.data); done++; paintTask(d.task, phase); lastScoreboard = d.scoreboard; $("status").textContent = `${phase === "control" ? "Control" : "Live"}: ${done} of ${total} done`; });
