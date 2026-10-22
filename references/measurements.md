@@ -54,3 +54,15 @@ The miss, both runs: the planted stub. HumanEval/132's docstring runs past token
 Estimate vs count on code: chars ÷ 3 gave 152–592; `countTokens` gave 202–598 on the same texts, 2.2–3.0 chars per token. Label estimates.
 
 Cost of the rehearsal: about 14,400 output tokens of Sonnet ($0.14) plus 113 Jev calls (under a cent).
+
+## Retry with the reason (demo live phase, 2026-10-21, ~6 PM, three runs)
+
+After a kill the model got its partial back as an assistant turn and the reviewer's finding as a note, then streamed again under the switch.
+
+| Run | Note role | Kills | Retries that finished | Passed tests | Stopped again |
+|---|---|---|---|---|---|
+| Full live run | user turn | 5 | 3 (javascript, bad_import, wrong_name) | 3 of 3 | fence, prose |
+| Spot check on those two | system turn | 2 | 1 (fence) | 1 of 1 | prose |
+| Full live run | system turn | 5 | 2 (fence, bad_import) | 2 of 2 | javascript, wrong_name, prose |
+
+No winner between note roles at this sample size. Every planted fault is written into the system prompt, so a retry is fighting the brief: the model obeys the brief or the note, and which one varies run to run. The prose brief ("explain your approach first") was obeyed every time. A real deployment's brief is not the fault, so expect better than this on a model's own slips. Retry tokens are paid and shown on the scoreboard as real counts.

@@ -178,7 +178,7 @@ export function explainKill(record, rules) {
  * the partial as an assistant turn, then a user turn with the reviewer's finding. Up to maxRetries extra attempts.
  * Returns { attempts: [record...], final: record, retried: boolean, fixed: boolean|null }.
  */
-export async function runWithRetry({ maxRetries = 1, explain = explainKill, ...opts }) {
+export async function runWithRetry({ maxRetries = 1, explain = explainKill, noteRole = "user", ...opts }) {
   const attempts = [];
   let params = opts.params;
   for (let i = 0; i <= maxRetries; i++) {
@@ -189,13 +189,14 @@ export async function runWithRetry({ maxRetries = 1, explain = explainKill, ...o
     if (i === maxRetries) break;
     const note = explain(record, opts.rules ?? []);
     record.retryNote = note;
+    // noteRole "user" works on every model. "system" sends the note as a mid-conversation system message (Opus 5.5, Sonnet 5.5,
+    // Haiku 5.5 only; it must follow a user turn and be last). Three runs on 2026-10-21 showed no clear difference at n=5.
+    const tail = noteRole === "system"
+      ? [{ role: "user", content: "Start again from the beginning." }, { role: "system", content: note }]
+      : [{ role: "user", content: note }];
     params = {
       ...params,
-      messages: [
-        ...params.messages,
-        { role: "assistant", content: record.text || "(nothing yet)" },
-        { role: "user", content: note },
-      ],
+      messages: [...params.messages, { role: "assistant", content: record.text || "(nothing yet)" }, ...tail],
     };
   }
   const final = attempts.at(-1);

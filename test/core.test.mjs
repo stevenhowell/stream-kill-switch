@@ -120,7 +120,7 @@ test("runWithRetry feeds the kill reason back and the retry carries the partial 
   const createStream = (params) => { seen.push(params); return new FakeStream(chunksOf(seen.length === 1 ? BAD : GOOD, 30)); };
   const judge = fakeJudge({ score: ({ partial }) => ({ stub: /TODO|NotImplemented/.test(partial) ? 0.95 : 0.05 }) });
   const rules = [{ id: "stub", question: "is a stub" }];
-  const out = await runWithRetry({ createStream, params: { messages: [{ role: "user", content: "write f" }] }, judge, rules, mode: "kill" });
+  const out = await runWithRetry({ createStream, params: { messages: [{ role: "user", content: "write f" }] }, judge, rules, mode: "kill", noteRole: "user" });
   assert.equal(out.attempts.length, 2);
   assert.equal(out.retried, true); assert.equal(out.fixed, true);
   assert.equal(out.attempts[0].killed, true); assert.equal(out.final.killed, false);
@@ -135,4 +135,13 @@ test("runWithRetry stops after maxRetries and reports fixed=false", async () => 
   const judge = fakeJudge({ score: () => ({ stub: 0.95 }) });
   const out = await runWithRetry({ createStream: () => new FakeStream(chunksOf(BAD, 30)), params: { messages: [{ role: "user", content: "x" }] }, judge, rules: [{ id: "stub", question: "q" }], mode: "kill", maxRetries: 2 });
   assert.equal(out.attempts.length, 3); assert.equal(out.fixed, false);
+});
+
+test("runWithRetry with noteRole system puts the note in a system turn after a user turn", async () => {
+  const { runWithRetry } = await import("../scripts/lib/core.mjs");
+  const seen = [];
+  const createStream = (params) => { seen.push(params); return new FakeStream(chunksOf(seen.length === 1 ? BAD : GOOD, 30)); };
+  const judge = fakeJudge({ score: ({ partial }) => ({ stub: /TODO|NotImplemented/.test(partial) ? 0.95 : 0.05 }) });
+  await runWithRetry({ createStream, params: { messages: [{ role: "user", content: "write f" }] }, judge, rules: [{ id: "stub", question: "q" }], mode: "kill", noteRole: "system" });
+  assert.deepEqual(seen[1].messages.map((m) => m.role), ["user", "assistant", "user", "system"]);
 });
