@@ -171,6 +171,9 @@ function renderBoard() {
     tiles.push(tile("Tokens wasted", fmt(l.tokensWasted), `paid before a kill on a clean brief · ${(l.msWasted / 1000).toFixed(1)} s waited for nothing`));
     tiles.push(tile("Net", (l.net >= 0 ? "+" : "") + fmt(l.net), `tokens${money(l.net)}`));
   }
+  if (!sb.live && sb.control) {
+    tiles.push(`<div class="tile hero"><div class="k">Tokens, dollars and time saved</div><div class="v" style="font-size:20px">Run live to see them</div><div class="n">the control run is the baseline; the live run arms the switch and these three count up as kills land</div></div>`);
+  }
   if (sb.control) {
     const c = sb.control;
     tiles.push(tile("Control run", `${c.passed} pass · ${c.failed} fail`, `${c.done} of ${tasks.length} streamed with no switch · ${fmt(c.tokens)} output tokens (real) · ${c.plantedFailed} of ${c.planted} planted faults failed their tests`));
