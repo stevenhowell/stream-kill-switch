@@ -192,12 +192,11 @@ function run(phase) {
   if (running) return;
   running = phase; $("runControl").disabled = true; $("runLive").disabled = true; $("empty").hidden = true;
   const live = {}; let done = 0, total = tasks.length;
-  const oneAtATime = $("oneAtATime").checked;
   let activeId = null;
-  const es = new EventSource(`/run?phase=${phase}&concurrency=${oneAtATime ? 1 : 4}`);
+  const es = new EventSource(`/run?phase=${phase}&concurrency=${$("oneAtATime").checked ? 1 : 4}`);
   es.addEventListener("start", (e) => { const d = JSON.parse(e.data); total = d.tasks.length; for (const t of d.tasks) { const el = cards.get(t.id); delete el.dataset.attempt; el.classList.remove("killed", "done", "streaming", "fixed"); const nb = el.querySelector(".note"); nb.hidden = true; nb.textContent = ""; el.querySelector("pre").textContent = ""; setMeter(el, null); el.querySelector(".foot").innerHTML = `<span class="state">Queued</span>`; } $("status").textContent = `${phase === "control" ? "Control" : "Live"}: 0 of ${total} done`; $("progress").hidden = false; $("progress").querySelector("i").style.width = "0%"; });
   es.addEventListener("text", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); const pre = el.querySelector("pre");
-    if (oneAtATime && activeId !== d.id) { if (activeId) cards.get(activeId)?.classList.remove("active"); activeId = d.id; el.classList.add("active"); el.scrollIntoView({ block: "center", behavior: "smooth" }); } if (d.attempt && el.dataset.attempt !== String(d.attempt)) { el.dataset.attempt = String(d.attempt); pre.textContent = ""; el.classList.remove("killed"); } el.classList.add("streaming"); pre.textContent += d.text; pre.scrollTop = pre.scrollHeight; el.querySelector(".foot").innerHTML = d.attempt ? `<span class="state">Retrying with the reason</span> · ~${d.estTokens} tokens` : `<span class="state">Streaming</span> · ~${d.estTokens} tokens`; });
+    if ($("oneAtATime").checked && activeId !== d.id) { if (activeId) cards.get(activeId)?.classList.remove("active"); activeId = d.id; activeIdGlobal = d.id; el.classList.add("active"); el.scrollIntoView({ block: "center", behavior: "smooth" }); } if (d.attempt && el.dataset.attempt !== String(d.attempt)) { el.dataset.attempt = String(d.attempt); pre.textContent = ""; el.classList.remove("killed"); } el.classList.add("streaming"); pre.textContent += d.text; pre.scrollTop = pre.scrollHeight; el.querySelector(".foot").innerHTML = d.attempt ? `<span class="state">Retrying with the reason</span> · ~${d.estTokens} tokens` : `<span class="state">Streaming</span> · ~${d.estTokens} tokens`; });
   es.addEventListener("checkpoint", (e) => { const d = JSON.parse(e.data); setMeter(cards.get(d.id), d.rules); });
   es.addEventListener("kill", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); el.classList.remove("streaming"); el.classList.add("killed"); el.querySelector(".foot").innerHTML = `<span class="state">Stopped at ~${d.atTokens} tokens (estimate)</span> · ${d.rule} ${d.p.toFixed(2)} at ${(d.atMs / 1000).toFixed(1)} s`; });
   es.addEventListener("task-done", (e) => { const d = JSON.parse(e.data); done++; paintTask(d.task, phase); lastScoreboard = d.scoreboard; if (lastTasks) { const i = lastTasks.findIndex(t => t.id === d.task.id); if (i >= 0) lastTasks[i] = d.task; else lastTasks.push(d.task); } else lastTasks = [d.task]; renderBoard(); $("status").textContent = `${phase === "control" ? "Control" : "Live"}: ${done} of ${total} done`; $("progress").querySelector("i").style.width = `${Math.round(100 * done / total)}%`; });
@@ -220,6 +219,17 @@ async function reattach(phase) {
     return;
   }
 }
+// The pace switch works at any time: before a run it sets the width, during a run it changes it at the next task, and it is remembered.
+try { const saved = localStorage.getItem("oneAtATime"); if (saved !== null) $("oneAtATime").checked = saved === "1"; } catch {}
+$("oneAtATime").addEventListener("change", async () => {
+  const one = $("oneAtATime").checked;
+  try { localStorage.setItem("oneAtATime", one ? "1" : "0"); } catch {}
+  if (!running) return;
+  const r = await fetch(`/pace?concurrency=${one ? 1 : 4}`).then(r => r.json()).catch(() => null);
+  $("status").textContent += r?.applied ? ` · now ${one ? "one at a time" : "4 at once"}` : "";
+  if (!one && activeIdGlobal) { cards.get(activeIdGlobal)?.classList.remove("active"); }
+});
+let activeIdGlobal = null;
 $("runControl").addEventListener("click", () => run("control"));
 $("runLive").addEventListener("click", () => run("live"));
 load();
