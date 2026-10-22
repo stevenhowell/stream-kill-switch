@@ -207,7 +207,18 @@ function run(phase) {
   es.addEventListener("text", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); const pre = el.querySelector("pre");
     if ($("oneAtATime").checked && activeId !== d.id) { if (activeId) cards.get(activeId)?.classList.remove("active"); activeId = d.id; activeIdGlobal = d.id; el.classList.add("active"); el.scrollIntoView({ block: "center", behavior: "smooth" }); } if (d.attempt && el.dataset.attempt !== String(d.attempt)) { el.dataset.attempt = String(d.attempt); pre.textContent = ""; el.classList.remove("killed"); } el.classList.add("streaming"); pre.textContent += d.text; pre.scrollTop = pre.scrollHeight; el.querySelector(".foot").innerHTML = d.attempt ? `<span class="state">Retrying with the reason</span> · ~${d.estTokens} tokens` : `<span class="state">Streaming</span> · ~${d.estTokens} tokens`; });
   es.addEventListener("checkpoint", (e) => { const d = JSON.parse(e.data); setMeter(cards.get(d.id), d.rules); });
-  es.addEventListener("kill", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); el.classList.remove("streaming"); el.classList.add("killed"); el.querySelector(".foot").innerHTML = `<span class="state">Stopped at ~${d.atTokens} tokens (estimate)</span> · ${d.rule} ${d.p.toFixed(2)} at ${(d.atMs / 1000).toFixed(1)} s`; });
+  es.addEventListener("kill", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); el.classList.remove("streaming"); el.classList.add("killed"); el.querySelector(".foot").innerHTML = `<span class="state">Stopped at ~${d.atTokens} tokens (estimate)</span> · ${d.rule} ${d.p.toFixed(2)} at ${(d.atMs / 1000).toFixed(1)} s`;
+    // Add this kill to the totals now, not when its retry finishes. The server's figures replace these at task-done.
+    if (phase === "live" && !d.attempt) {
+      const t = lastTasks?.find(x => x.id === d.id); const task = tasks.find(x => x.id === d.id);
+      if (t?.control?.outputTokens != null) {
+        lastScoreboard = lastScoreboard || {}; const l = lastScoreboard.live = lastScoreboard.live || { kills: 0, trueKills: 0, falseKills: 0, tokensNotGenerated: 0, tokensWasted: 0, net: 0, msSaved: 0, msWasted: 0, retryMs: 0, retryTokens: 0, tasks: 0 };
+        l.kills++;
+        if (task?.planted) { l.trueKills++; l.tokensNotGenerated += Math.max(0, t.control.outputTokens - d.atTokens); l.msSaved += Math.max(0, (t.control.elapsedMs ?? 0) - d.atMs); }
+        else { l.falseKills++; l.tokensWasted += d.atTokens; l.msWasted += d.atMs; }
+        l.net = l.tokensNotGenerated - l.tokensWasted; renderBoard();
+      }
+    } });
   es.addEventListener("task-done", (e) => { const d = JSON.parse(e.data); done++; paintTask(d.task, phase); lastScoreboard = d.scoreboard; if (lastTasks) { const i = lastTasks.findIndex(t => t.id === d.task.id); if (i >= 0) lastTasks[i] = d.task; else lastTasks.push(d.task); } else lastTasks = [d.task]; renderBoard(); $("status").textContent = `${phase === "control" ? "Control" : "Live"}: ${done} of ${total} done`; $("progress").querySelector("i").style.width = `${Math.round(100 * done / total)}%`; });
   es.addEventListener("retry-start", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); const note = el.querySelector(".note"); note.hidden = false; note.innerHTML = `<b>Fed back to the model:</b> ${d.note}`; el.querySelector(".foot").innerHTML = `<span class="state">Retrying with the reason</span>`; });
   es.addEventListener("task-error", (e) => { const d = JSON.parse(e.data); done++; const el = cards.get(d.id); el.classList.remove("streaming"); el.querySelector(".foot").innerHTML = `<span class="state">Error</span> · ${d.error}`; });
