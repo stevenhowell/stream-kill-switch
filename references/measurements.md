@@ -67,3 +67,18 @@ After a kill the model got its partial back as an assistant turn and the reviewe
 | Full live run (~6:40 PM) | user turn | 5 | 4 | 4 of 4 | prose |
 
 Across four runs retries fixed 2 to 4 of the 5 kills; no winner between note roles at this sample size. Every planted fault is written into the system prompt, so a retry is fighting the brief: the model obeys the brief or the note, and which one varies run to run. The prose brief ("explain your approach first") was obeyed every time. A real deployment's brief is not the fault, so expect better than this on a model's own slips. Retry tokens are paid and shown on the scoreboard as real counts.
+
+## 100 clean problems, no planted faults (2026-10-21, ~7:20 PM)
+
+The 100 HumanEval problems with the longest reference solutions, Sonnet 5.5 at effort low, shadow mode, tests as referee, 5 at a time.
+
+| | |
+|---|---|
+| Passed tests | 100 of 100 |
+| Output tokens | 28,775 total, median 274, max 610 |
+| Time per task | median 2.5 s, max 11.1 s |
+| Judge calls | 240, median 98 ms |
+| Would have been killed at 0.5 | 1 (HumanEval/32, `wrong_signature` 0.61 at token 255), a false kill on a passing answer |
+| Would have been killed at 0.7 | 0 |
+
+What it means: on work the model does well, the switch catches nothing and at 0.5 it risks a false kill. The saving exists only where faults happen, and a shadow run like this one is how you find out whether they do. On this evidence 0.7 is the safer threshold for Sonnet 5.5 on code.
