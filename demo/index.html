@@ -101,7 +101,7 @@ const money = (tokens) => { const d = dollars(tokens, config.outputPricePerMilli
 async function load() {
   [config, rules, tasks] = await Promise.all([fetch("/config").then(r => r.json()), fetch("/rules").then(r => r.json()), fetch("/tasks").then(r => r.json())]);
   const planted = tasks.filter(t => t.planted).length;
-  $("sub").textContent = `${tasks.length} HumanEval problems (the 20 with the longest reference solutions), ${planted} with a planted fault · ${config.model} streaming · ${config.judge} judging at ~${config.firstCheckpoint} tokens, then every ${config.every} · threshold ${config.threshold}`;
+  $("sub").textContent = `${tasks.length} HumanEval problems (the ${tasks.length} with the longest reference solutions), ${planted} with a planted fault · ${config.model} streaming · ${config.judge} judging at ~${config.firstCheckpoint} tokens, then every ${config.every} · threshold ${config.threshold}`;
   $("emptyText").textContent = `Run control streams each problem once with no switch, judged in shadow, then runs the problem's own tests. Run live streams them again with the switch armed: a tripped rule aborts the stream. Faults are planted in ${planted} briefs so there is something to catch.`;
   for (const t of tasks) makeCard(t);
   const last = await fetch("/last").then(r => r.json());
