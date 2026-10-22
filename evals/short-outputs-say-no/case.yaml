@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: short-outputs-say-no
+expected_outcome: |
+  The answer is no, with the reason: the first checkpoint is at ~50 tokens and the output is 60–80, so there is almost no tail to save, and a judge call per generation would cost more time than it saves. It points to cheaper levers for short outputs (prompt caching, structured outputs, batch) instead.

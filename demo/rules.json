@@ -1,0 +1,8 @@
+[
+  { "id": "not_code", "question": "The partial output starts with prose, an explanation, or a markdown code fence instead of raw Python code" },
+  { "id": "not_python", "question": "The visible code is not Python" },
+  { "id": "bad_import", "question": "The visible code imports a module that is not in allowed_imports" },
+  { "id": "wrong_signature", "question": "The visible code defines the main function with a name or parameters that differ from required_signature" },
+  { "id": "stub", "question": "The visible code is a stub: a TODO, pass, or NotImplementedError instead of an implementation" },
+  { "id": "refuses", "question": "The partial output declines the task or asks the user a question instead of writing the function" }
+]

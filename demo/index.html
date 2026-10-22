@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kill switch</title>
+<style>
+  :root { color-scheme: light dark;
+    --bg: #ffffff; --fg: #1d1d1f; --muted: #6e6e73; --line: #d2d2d7; --card: #f5f5f7; --code: #fbfbfd;
+    --red: #d70015; --green: #1f7a3a; --amber: #b25000; --accent: #0066cc; --accent-fg: #fff; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #1c1c1e; --fg: #f5f5f7; --muted: #a1a1a6; --line: #3a3a3c; --card: #2c2c2e; --code: #161618; --red: #ff453a; --green: #30d158; --amber: #ff9f0a; --accent: #0a84ff; } }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.4 -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  header { padding: 18px 20px 10px; display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-end; border-bottom: 1px solid var(--line); }
+  h1 { font-size: 22px; margin: 0; }
+  .sub { color: var(--muted); font-size: 13px; }
+  .controls { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  button { font: inherit; font-weight: 600; min-height: 44px; min-width: 120px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--fg); cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+  button:active:not(:disabled) { transform: translateY(1px); filter: brightness(0.92); }
+  button:disabled { opacity: .45; cursor: default; }
+  .status { padding: 8px 20px; color: var(--muted); font-size: 13px; min-height: 32px; }
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; padding: 8px 20px 14px; }
+  .tile { background: var(--card); border-radius: 12px; padding: 10px 12px; }
+  .tile .k { color: var(--muted); font-size: 12px; }
+  .tile .v { font-size: 22px; font-weight: 700; margin-top: 2px; }
+  .tile .n { color: var(--muted); font-size: 11px; margin-top: 2px; }
+  .replay { padding: 0 20px 14px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; color: var(--muted); font-size: 13px; }
+  .replay input[type=range] { width: 220px; }
+  .replay b { color: var(--fg); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; padding: 0 20px 24px; }
+  .card { border: 1px solid var(--line); border-radius: 12px; background: var(--card); display: flex; flex-direction: column; min-height: 230px; overflow: hidden; }
+  .card.killed { border-color: var(--red); box-shadow: 0 0 0 2px color-mix(in srgb, var(--red) 25%, transparent); }
+  .card.done { border-color: color-mix(in srgb, var(--green) 55%, var(--line)); }
+  .card.streaming { border-color: var(--accent); }
+  .head { display: flex; justify-content: space-between; gap: 8px; padding: 8px 10px; font-size: 12px; }
+  .head .id { font-weight: 600; }
+  .badge { font-size: 11px; padding: 1px 7px; border-radius: 999px; background: color-mix(in srgb, var(--amber) 18%, transparent); color: var(--amber); white-space: nowrap; }
+  pre { margin: 0; flex: 1; background: var(--code); padding: 8px 10px; font: 11px/1.35 Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-word; max-height: 170px; overflow: auto; }
+  .card.killed pre { background: color-mix(in srgb, var(--red) 8%, var(--code)); }
+  .meter { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; padding: 6px 10px 0; }
+  .rule { font-size: 10px; color: var(--muted); }
+  .rule .bar { height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; margin-top: 2px; }
+  .rule .bar i { display: block; height: 100%; width: 0; background: var(--muted); }
+  .rule.hot .bar i { background: var(--red); }
+  .rule.hot { color: var(--red); }
+  .foot { padding: 6px 10px 8px; font-size: 12px; color: var(--muted); }
+  .foot b { color: var(--fg); }
+  .card.killed .foot .state { color: var(--red); font-weight: 600; }
+  .card.done .foot .state { color: var(--green); font-weight: 600; }
+  .empty { padding: 28px 20px; color: var(--muted); max-width: 720px; }
+  .empty b { color: var(--fg); }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Kill switch</h1>
+    <div class="sub" id="sub">Loading…</div>
+  </div>
+  <div class="controls">
+    <button id="runControl" class="primary">Run control</button>
+    <button id="runLive" disabled>Run live</button>
+  </div>
+</header>
+<div class="status" id="status"></div>
+<div id="empty" class="empty" hidden>
+  <b>Nothing has run yet.</b> <span id="emptyText"></span>
+</div>
+<div class="board" id="board" hidden></div>
+<div class="replay" id="replayBox" hidden>
+  <label>Replay threshold <input type="range" id="threshold" min="0.2" max="0.95" step="0.05"> <b id="thresholdValue"></b></label>
+  <span id="replayText"></span>
+</div>
+<div class="grid" id="grid"></div>
+
+<script type="module">
+import { replay, summarizeLive, dollars } from "/lib/scoreboard.mjs";
+
+const $ = (id) => document.getElementById(id);
+let config, rules, tasks = [], cards = new Map(), lastTasks = null, lastScoreboard = null, running = null;
+const fmt = (n) => (n === null || n === undefined) ? "–" : Math.round(n).toLocaleString();
+const money = (tokens) => { const d = dollars(tokens, config.outputPricePerMillion); return d === null ? "" : ` · $${d.toFixed(4)}`; };
+
+async function load() {
+  [config, rules, tasks] = await Promise.all([fetch("/config").then(r => r.json()), fetch("/rules").then(r => r.json()), fetch("/tasks").then(r => r.json())]);
+  const planted = tasks.filter(t => t.planted).length;
+  $("sub").textContent = `${tasks.length} HumanEval problems (the 20 with the longest reference solutions), ${planted} with a planted fault · ${config.model} streaming · ${config.judge} judging at ~${config.firstCheckpoint} tokens, then every ${config.every} · threshold ${config.threshold}`;
+  $("emptyText").textContent = `Run control streams each problem once with no switch, judged in shadow, then runs the problem's own tests. Run live streams them again with the switch armed: a tripped rule aborts the stream. Faults are planted in ${planted} briefs so there is something to catch.`;
+  for (const t of tasks) makeCard(t);
+  const last = await fetch("/last").then(r => r.json());
+  if (last && last.tasks) { lastTasks = last.tasks; lastScoreboard = last.scoreboard; for (const t of last.tasks) paintTask(t, t.live ? "live" : "control"); renderBoard(); $("runLive").disabled = !last.tasks.some(t => t.control); $("status").textContent = `Showing ${last.sample ? "the sample run shipped with the demo" : "the last run"} (${new Date(last.startedAt).toLocaleString()}).`; }
+  else $("empty").hidden = false;
+}
+
+function makeCard(t) {
+  const el = document.createElement("div"); el.className = "card"; el.id = "card-" + t.id;
+  el.innerHTML = `<div class="head"><span class="id">${t.id} · ${t.entry_point}</span>${t.planted ? `<span class="badge">planted: ${t.planted}</span>` : ""}</div>
+    <pre></pre>
+    <div class="meter">${rules.map(r => `<div class="rule" data-rule="${r.id}">${r.id}<div class="bar"><i></i></div></div>`).join("")}</div>
+    <div class="foot"><span class="state">Waiting</span><span class="detail"></span></div>`;
+  $("grid").appendChild(el); cards.set(t.id, el);
+}
+
+function setMeter(el, probs) {
+  for (const r of rules) { const node = el.querySelector(`[data-rule="${r.id}"]`); const p = probs?.[r.id]; node.querySelector("i").style.width = `${Math.round((p ?? 0) * 100)}%`; node.classList.toggle("hot", (p ?? 0) >= config.threshold); node.title = p === undefined ? "" : `${r.id} ${p.toFixed(2)}`; }
+}
+
+function paintTask(t, phase) {
+  const el = cards.get(t.id); if (!el) return;
+  const rec = t[phase]; if (!rec) return;
+  el.querySelector("pre").textContent = rec.text ?? "";
+  const last = rec.checkpoints?.at(-1); setMeter(el, last?.rules);
+  el.classList.remove("streaming", "killed", "done");
+  const foot = el.querySelector(".foot");
+  if (rec.killed) {
+    el.classList.add("killed");
+    foot.innerHTML = `<span class="state">Stopped at ~${rec.kill.atTokens} tokens (estimate${rec.countedTokens !== null && rec.countedTokens !== undefined ? `, counted ${rec.countedTokens}` : ""})</span> · ${rec.kill.rule} ${rec.kill.p.toFixed(2)} at ${(rec.kill.atMs / 1000).toFixed(1)} s` + controlLine(t);
+  } else {
+    el.classList.add("done");
+    const tok = rec.outputTokens !== undefined && rec.outputTokens !== null ? `${rec.outputTokens} tokens (real)` : `~${rec.estTokens} tokens (estimate)`;
+    const ref = phase === "control" && rec.referee ? ` · tests ${rec.referee.status}` : "";
+    foot.innerHTML = `<span class="state">${phase === "control" ? "Control" : "Finished"}</span> · ${tok}${ref} · ${(rec.elapsedMs / 1000).toFixed(1)} s` + (phase === "live" ? controlLine(t) : "");
+  }
+}
+function controlLine(t) { return t.control ? `<br>control: ${fmt(t.control.outputTokens)} tokens, tests ${t.control.referee?.status ?? "not run"}` : ""; }
+
+function renderBoard() {
+  const sb = lastScoreboard; if (!sb) return;
+  $("empty").hidden = true; $("board").hidden = false;
+  const tiles = [];
+  if (sb.live) {
+    const l = sb.live;
+    tiles.push(tile("Live kills", `${l.kills}`, `${l.trueKills} on planted faults, ${l.falseKills} on clean briefs`));
+    tiles.push(tile("Tokens not generated", fmt(l.tokensNotGenerated), "vs each task's control length (real)" + money(l.tokensNotGenerated)));
+    tiles.push(tile("Tokens wasted", fmt(l.tokensWasted), "paid before a kill on a clean brief"));
+    tiles.push(tile("Net", (l.net >= 0 ? "+" : "") + fmt(l.net), `tokens${money(l.net)}`));
+  }
+  if (sb.replay) {
+    const r = sb.replay;
+    tiles.push(tile(`Control run, replayed at ${r.threshold}`, `${r.kills} kills`, `${r.trueKills} right by tests, ${r.falseKills} wrong, ${r.missed} missed · net ${r.net >= 0 ? "+" : ""}${fmt(r.net)} tokens`));
+  }
+  tiles.push(tile("Judge", `${fmt(sb.judgeMsMedian)} ms`, `median of ${fmt(sb.judgeCalls)} calls to ${config.judge}${sb.overshootTokens ? ` · ~${sb.overshootTokens} tokens arrive after abort` : ""}`));
+  $("board").innerHTML = tiles.join("");
+  if (sb.replay && lastTasks) { $("replayBox").hidden = false; const s = $("threshold"); if (!s.dataset.set) { s.value = config.threshold; s.dataset.set = "1"; } renderReplay(); }
+}
+function tile(k, v, n) { return `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="n">${n}</div></div>`; }
+function renderReplay() {
+  const th = Number($("threshold").value); $("thresholdValue").textContent = th.toFixed(2);
+  const r = replay(lastTasks.filter(t => t.control), { threshold: th, overshootTokens: lastScoreboard?.overshootTokens ?? 0 });
+  $("replayText").innerHTML = `Shadow judgements from the control run, refereed by the tests, no new calls: <b>${r.kills} kills</b>, <b>${r.trueKills}</b> right, <b>${r.falseKills}</b> wrong, <b>${r.missed}</b> missed · not generated <b>${fmt(r.tokensNotGenerated)}</b> · wasted <b>${fmt(r.tokensWasted)}</b> · net <b>${r.net >= 0 ? "+" : ""}${fmt(r.net)}</b> tokens${money(r.net)}`;
+}
+$("threshold").addEventListener("input", renderReplay);
+
+function run(phase) {
+  if (running) return;
+  running = phase; $("runControl").disabled = true; $("runLive").disabled = true; $("empty").hidden = true;
+  const live = {}; let done = 0, total = tasks.length;
+  const es = new EventSource(`/run?phase=${phase}`);
+  es.addEventListener("start", (e) => { const d = JSON.parse(e.data); total = d.tasks.length; for (const t of d.tasks) { const el = cards.get(t.id); el.classList.remove("killed", "done", "streaming"); el.querySelector("pre").textContent = ""; setMeter(el, null); el.querySelector(".foot").innerHTML = `<span class="state">Queued</span>`; } $("status").textContent = `${phase === "control" ? "Control" : "Live"}: 0 of ${total} done`; });
+  es.addEventListener("text", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); el.classList.add("streaming"); const pre = el.querySelector("pre"); pre.textContent += d.text; pre.scrollTop = pre.scrollHeight; el.querySelector(".foot").innerHTML = `<span class="state">Streaming</span> · ~${d.estTokens} tokens`; });
+  es.addEventListener("checkpoint", (e) => { const d = JSON.parse(e.data); setMeter(cards.get(d.id), d.rules); });
+  es.addEventListener("kill", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); el.classList.remove("streaming"); el.classList.add("killed"); el.querySelector(".foot").innerHTML = `<span class="state">Stopped at ~${d.atTokens} tokens (estimate)</span> · ${d.rule} ${d.p.toFixed(2)} at ${(d.atMs / 1000).toFixed(1)} s`; });
+  es.addEventListener("task-done", (e) => { const d = JSON.parse(e.data); done++; paintTask(d.task, phase); lastScoreboard = d.scoreboard; $("status").textContent = `${phase === "control" ? "Control" : "Live"}: ${done} of ${total} done`; });
+  es.addEventListener("task-error", (e) => { const d = JSON.parse(e.data); done++; const el = cards.get(d.id); el.classList.remove("streaming"); el.querySelector(".foot").innerHTML = `<span class="state">Error</span> · ${d.error}`; });
+  es.addEventListener("judge-error", (e) => { const d = JSON.parse(e.data); cards.get(d.id).querySelector(".foot").innerHTML += ` · judge error: ${d.error}`; });
+  es.addEventListener("phase-done", (e) => { const d = JSON.parse(e.data); lastTasks = d.tasks; lastScoreboard = d.scoreboard; renderBoard(); es.close(); running = null; $("runControl").disabled = false; $("runLive").disabled = false; $("status").textContent = `${phase === "control" ? "Control" : "Live"} finished: ${done} of ${total}.`; });
+  es.onerror = () => { if (running) { $("status").textContent = `Connection lost during the ${phase} run. The server keeps its results; reload to see them.`; es.close(); running = null; $("runControl").disabled = false; $("runLive").disabled = !lastTasks; } };
+}
+$("runControl").addEventListener("click", () => run("control"));
+$("runLive").addEventListener("click", () => run("live"));
+load();
+</script>
+</body>
+</html>

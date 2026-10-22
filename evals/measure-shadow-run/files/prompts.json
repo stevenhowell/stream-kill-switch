@@ -1,0 +1,50 @@
+[
+  {
+    "system": "You write product descriptions for an online store. About 1,500 tokens. English. Do not name competitors. Do not open with a disclaimer.",
+    "prompt": "Write the product description for a cast-iron skillet."
+  },
+  {
+    "system": "You write product descriptions for an online store. About 1,500 tokens. English. Do not name competitors. Do not open with a disclaimer.",
+    "prompt": "Write the product description for a trail running shoe."
+  },
+  {
+    "system": "You write product descriptions for an online store. About 1,500 tokens. English. Do not name competitors. Do not open with a disclaimer.",
+    "prompt": "Write the product description for a standing desk."
+  },
+  {
+    "system": "You write product descriptions for an online store. About 1,500 tokens. English. Do not name competitors. Do not open with a disclaimer.",
+    "prompt": "Write the product description for a cordless drill."
+  },
+  {
+    "system": "You write product descriptions for an online store. About 1,500 tokens. English. Do not name competitors. Do not open with a disclaimer.",
+    "prompt": "Write the product description for a wool blanket."
+  },
+  {
+    "system": "You write product descriptions for an online store. About 1,500 tokens. English. Do not name competitors. Do not open with a disclaimer.",
+    "prompt": "Write the product description for a kids' water bottle."
+  },
+  {
+    "system": "You write product descriptions for an online store. About 1,500 tokens. English. Do not name competitors. Do not open with a disclaimer.",
+    "prompt": "Write the product description for a mechanical keyboard."
+  },
+  {
+    "system": "You write product descriptions for an online store. About 1,500 tokens. English. Do not name competitors. Do not open with a disclaimer.",
+    "prompt": "Write the product description for a hiking backpack."
+  },
+  {
+    "system": "You write product descriptions for an online store. About 1,500 tokens. English. Do not name competitors. Do not open with a disclaimer.",
+    "prompt": "Write the product description for a coffee grinder."
+  },
+  {
+    "system": "You write product descriptions for an online store. About 1,500 tokens. English. Do not name competitors. Do not open with a disclaimer.",
+    "prompt": "Write the product description for a yoga mat."
+  },
+  {
+    "system": "You write product descriptions for an online store. About 1,500 tokens. English. Do not name competitors. Do not open with a disclaimer.",
+    "prompt": "Write the product description for a bike helmet."
+  },
+  {
+    "system": "You write product descriptions for an online store. About 1,500 tokens. English. Do not name competitors. Do not open with a disclaimer.",
+    "prompt": "Write the product description for a desk lamp."
+  }
+]

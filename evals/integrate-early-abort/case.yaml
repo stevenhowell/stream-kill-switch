@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: integrate-early-abort
+expected_outcome: |
+  The generator is switched to streaming and wrapped with a checkpoint judge: one yes/no rule per fault (wrong tone, refusal, JSON instead of plain text), judged at ~50 tokens then every ~100, with the decision made in code from the rule probabilities and the stream aborted on a trip. Stop points are labelled estimates; the un-aborted run's usage is the real count. The response says a false kill costs the partial plus a retry and suggests a shadow run to pick the threshold.
+
+context:
+  scaffold_script: place-files.sh

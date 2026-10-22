@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "demo", "runtimeExecutable": "node", "runtimeArgs": ["--env-file=.env", "demo/server.mjs"], "port": 8787 }
+  ]
+}

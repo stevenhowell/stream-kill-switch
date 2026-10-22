@@ -1,0 +1,18 @@
+{
+  "name": "stream-kill-switch",
+  "version": "0.1.0",
+  "description": "Judge a streaming Claude generation every ~100 tokens with a decision model and abort the bad ones before the output tokens are paid for.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=22" },
+  "bin": { "killswitch": "scripts/killswitch.mjs" },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "demo": "node --env-file=.env demo/server.mjs",
+    "tasks": "node demo/build-tasks.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.137.0",
+    "@typesafe-ai/sdk": "^0.7.0"
+  }
+}

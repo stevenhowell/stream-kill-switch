@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: measure-shadow-run
+expected_outcome: |
+  The skill's CLI (or library) is used in shadow mode on each prompt with three per-rule questions, checkpoints are recorded, and replay is reported at 0.5 and 0.7 with kills, stop points (as estimates), tokens not generated against the real full lengths, and net. If the run cannot happen (no keys, no file), the response says so plainly instead of inventing results.
+
+context:
+  scaffold_script: place-files.sh

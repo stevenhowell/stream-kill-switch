@@ -1,0 +1,3790 @@
+{
+ "config": {
+  "model": "claude-sonnet-5-5",
+  "judge": "jev-1.14.0",
+  "threshold": 0.5,
+  "concurrency": 4,
+  "firstCheckpoint": 50,
+  "every": 100,
+  "outputPricePerMillion": 10,
+  "priceNote": "list price per million output tokens, platform.claude.com, 2026-10-06"
+ },
+ "startedAt": "2026-10-22T00:53:08.600Z",
+ "tasks": [
+  {
+   "id": "HumanEval/1",
+   "entry_point": "separate_paren_groups",
+   "planted": null,
+   "signature": "def separate_paren_groups(paren_string: str) -> List[str]:",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 285,
+    "countedTokens": null,
+    "elapsedMs": 2154,
+    "firstTextMs": 893,
+    "judgeCalls": 3,
+    "judgeMsMedian": 158,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 50,
+      "chars": 151,
+      "sentAtMs": 1257,
+      "ms": 158,
+      "rules": {
+       "not_code": 0.07,
+       "not_python": 0.05,
+       "bad_import": 0.02,
+       "wrong_signature": 0.03,
+       "stub": 0.13,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.13
+      }
+     },
+     {
+      "at": 151,
+      "chars": 454,
+      "sentAtMs": 1622,
+      "ms": 204,
+      "rules": {
+       "not_code": 0.08,
+       "not_python": 0.07,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.14,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.14
+      }
+     },
+     {
+      "at": 253,
+      "chars": 759,
+      "sentAtMs": 2064,
+      "ms": 90,
+      "rules": {
+       "not_code": 0.03,
+       "not_python": 0.04,
+       "bad_import": 0.02,
+       "wrong_signature": 0.03,
+       "stub": 0.05,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.05
+      }
+     }
+    ],
+    "text": "from typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    result = []\n    current = []\n    depth = 0\n    for ch in paren_string:\n        if ch == '(':\n            depth += 1\n            current.append(ch)\n        elif ch == ')':\n            depth -= 1\n            current.append(ch)\n            if depth == 0:\n                result.append(''.join(current))\n                current = []\n    return result",
+    "outputTokens": 283,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 294,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 283,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": true,
+    "referee": {
+     "passed": true,
+     "status": "pass",
+     "ms": 25,
+     "stderrTail": ""
+    }
+   },
+   "live": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 285,
+    "countedTokens": 289,
+    "elapsedMs": 2105,
+    "firstTextMs": 876,
+    "judgeCalls": 3,
+    "judgeMsMedian": 192,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 50,
+      "chars": 151,
+      "sentAtMs": 1266,
+      "ms": 263,
+      "rules": {
+       "not_code": 0.08,
+       "not_python": 0.04,
+       "bad_import": 0.02,
+       "wrong_signature": 0.04,
+       "stub": 0.13,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.13
+      }
+     },
+     {
+      "at": 151,
+      "chars": 454,
+      "sentAtMs": 1600,
+      "ms": 192,
+      "rules": {
+       "not_code": 0.08,
+       "not_python": 0.06,
+       "bad_import": 0.03,
+       "wrong_signature": 0.04,
+       "stub": 0.12,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.12
+      }
+     },
+     {
+      "at": 253,
+      "chars": 760,
+      "sentAtMs": 1977,
+      "ms": 128,
+      "rules": {
+       "not_code": 0.03,
+       "not_python": 0.04,
+       "bad_import": 0.02,
+       "wrong_signature": 0.03,
+       "stub": 0.03,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_python",
+       "p": 0.04
+      }
+     }
+    ],
+    "text": "from typing import List\n\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    result = []\n    current = []\n    depth = 0\n    for ch in paren_string:\n        if ch == '(':\n            depth += 1\n            current.append(ch)\n        elif ch == ')':\n            depth -= 1\n            current.append(ch)\n            if depth == 0:\n                result.append(''.join(current))\n                current = []\n    return result",
+    "usage": {
+     "input_tokens": 294,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 283,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    }
+   }
+  },
+  {
+   "id": "HumanEval/20",
+   "entry_point": "find_closest_elements",
+   "planted": null,
+   "signature": "def find_closest_elements(numbers: List[float]) -> Tuple[float, float]:",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 231,
+    "countedTokens": null,
+    "elapsedMs": 2349,
+    "firstTextMs": 897,
+    "judgeCalls": 2,
+    "judgeMsMedian": 131,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 60,
+      "chars": 180,
+      "sentAtMs": 1147,
+      "ms": 177,
+      "rules": {
+       "not_code": 0.04,
+       "not_python": 0.02,
+       "bad_import": 0.02,
+       "wrong_signature": 0.03,
+       "stub": 0.15,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.15
+      }
+     },
+     {
+      "at": 154,
+      "chars": 462,
+      "sentAtMs": 2219,
+      "ms": 84,
+      "rules": {
+       "not_code": 0.06,
+       "not_python": 0.04,
+       "bad_import": 0.02,
+       "wrong_signature": 0.02,
+       "stub": 0.11,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.11
+      }
+     }
+    ],
+    "text": "from typing import List, Tuple\n\n\ndef find_closest_elements(numbers: List[float]) -> Tuple[float, float]:\n    \"\"\" From a supplied list of numbers (of length at least two) select and return two that are the closest to each\n    other and return them in order (smaller number, larger number).\n    >>> find_closest_elements([1.0, 2.0, 3.0, 4.0, 5.0, 2.2])\n    (2.0, 2.2)\n    >>> find_closest_elements([1.0, 2.0, 3.0, 4.0, 5.0, 2.0])\n    (2.0, 2.0)\n    \"\"\"\n    s = sorted(numbers)\n    best = (s[0], s[1])\n    best_diff = s[1] - s[0]\n    for i in range(1, len(s) - 1):\n        d = s[i + 1] - s[i]\n        if d < best_diff:\n            best_diff = d\n            best = (s[i], s[i + 1])\n    return best",
+    "outputTokens": 316,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 325,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 316,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": true,
+    "referee": {
+     "passed": true,
+     "status": "pass",
+     "ms": 27,
+     "stderrTail": ""
+    }
+   },
+   "live": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 231,
+    "countedTokens": 322,
+    "elapsedMs": 2385,
+    "firstTextMs": 950,
+    "judgeCalls": 2,
+    "judgeMsMedian": 196,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 60,
+      "chars": 180,
+      "sentAtMs": 1244,
+      "ms": 300,
+      "rules": {
+       "not_code": 0.06,
+       "not_python": 0.03,
+       "bad_import": 0.02,
+       "wrong_signature": 0.03,
+       "stub": 0.13,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.13
+      }
+     },
+     {
+      "at": 154,
+      "chars": 462,
+      "sentAtMs": 2293,
+      "ms": 92,
+      "rules": {
+       "not_code": 0.08,
+       "not_python": 0.03,
+       "bad_import": 0.02,
+       "wrong_signature": 0.02,
+       "stub": 0.1,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.1
+      }
+     }
+    ],
+    "text": "from typing import List, Tuple\n\n\ndef find_closest_elements(numbers: List[float]) -> Tuple[float, float]:\n    \"\"\" From a supplied list of numbers (of length at least two) select and return two that are the closest to each\n    other and return them in order (smaller number, larger number).\n    >>> find_closest_elements([1.0, 2.0, 3.0, 4.0, 5.0, 2.2])\n    (2.0, 2.2)\n    >>> find_closest_elements([1.0, 2.0, 3.0, 4.0, 5.0, 2.0])\n    (2.0, 2.0)\n    \"\"\"\n    s = sorted(numbers)\n    best = (s[0], s[1])\n    best_diff = s[1] - s[0]\n    for i in range(1, len(s) - 1):\n        d = s[i + 1] - s[i]\n        if d < best_diff:\n            best_diff = d\n            best = (s[i], s[i + 1])\n    return best",
+    "usage": {
+     "input_tokens": 325,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 316,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    }
+   }
+  },
+  {
+   "id": "HumanEval/39",
+   "entry_point": "prime_fib",
+   "planted": "javascript",
+   "signature": "def prime_fib(n: int):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 299,
+    "countedTokens": null,
+    "elapsedMs": 2735,
+    "firstTextMs": 897,
+    "judgeCalls": 3,
+    "judgeMsMedian": 154,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 55,
+      "chars": 166,
+      "sentAtMs": 1510,
+      "ms": 183,
+      "rules": {
+       "not_code": 0.98,
+       "not_python": 0.95,
+       "bad_import": 0.11,
+       "wrong_signature": 0.28,
+       "stub": 0.16,
+       "refuses": 0.82
+      },
+      "choice": "kill",
+      "decision": {
+       "kill": true,
+       "rule": "not_code",
+       "p": 0.98
+      }
+     },
+     {
+      "at": 156,
+      "chars": 468,
+      "sentAtMs": 1907,
+      "ms": 154,
+      "rules": {
+       "not_code": 0.99,
+       "not_python": 0.99,
+       "bad_import": 0.05,
+       "wrong_signature": 0.85,
+       "stub": 0.17,
+       "refuses": 0.66
+      },
+      "choice": "kill",
+      "decision": {
+       "kill": true,
+       "rule": "not_code",
+       "p": 0.99
+      }
+     },
+     {
+      "at": 250,
+      "chars": 749,
+      "sentAtMs": 2555,
+      "ms": 123,
+      "rules": {
+       "not_code": 0.98,
+       "not_python": 0.99,
+       "bad_import": 0.04,
+       "wrong_signature": 0.85,
+       "stub": 0.07,
+       "refuses": 0.67
+      },
+      "choice": "kill",
+      "decision": {
+       "kill": true,
+       "rule": "not_python",
+       "p": 0.99
+      }
+     }
+    ],
+    "text": "The instructions conflict, since the signature must be exactly as given (Python) but you also ask for JavaScript. I'll go with JavaScript, translating the function faithfully.\n\n```javascript\nfunction prime_fib(n) {\n    /*\n    prime_fib returns n-th number that is a Fibonacci number and it's also prime.\n    >>> prime_fib(1)\n    2\n    >>> prime_fib(2)\n    3\n    >>> prime_fib(3)\n    5\n    >>> prime_fib(4)\n    13\n    >>> prime_fib(5)\n    89\n    */\n    function isPrime(p) {\n        if (p < 2) return false;\n        if (p % 2 === 0) return p === 2;\n        for (let i = 3; i * i <= p; i += 2) {\n            if (p % i === 0) return false;\n        }\n        return true;\n    }\n    let a = 0, b = 1;\n    let count = 0;\n    while (true) {\n        const c = a + b;\n        a = b;\n        b = c;\n        if (isPrime(a)) {\n            count++;\n            if (count === n) return a;\n        }\n    }\n}\n```",
+    "outputTokens": 368,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 267,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 368,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": false,
+    "referee": {
+     "passed": false,
+     "status": "fail",
+     "ms": 56,
+     "stderrTail": "                                                                                                                       ^ | SyntaxError: unterminated string literal (detected at line 1)"
+    }
+   },
+   "live": {
+    "killed": true,
+    "kill": {
+     "rule": "not_code",
+     "p": 0.98,
+     "checkpointAt": 53,
+     "atTokens": 89,
+     "atChars": 268,
+     "atMs": 1544,
+     "judgeMs": 174,
+     "charsAfterAbort": 0,
+     "tokensAfterAbort": 0
+    },
+    "estTokens": 89,
+    "countedTokens": 92,
+    "elapsedMs": 1545,
+    "firstTextMs": 809,
+    "judgeCalls": 1,
+    "judgeMsMedian": 174,
+    "judgeErrors": [],
+    "stopReason": "killed",
+    "checkpoints": [
+     {
+      "at": 53,
+      "chars": 159,
+      "sentAtMs": 1370,
+      "ms": 174,
+      "rules": {
+       "not_code": 0.98,
+       "not_python": 0.98,
+       "bad_import": 0.14,
+       "wrong_signature": 0.29,
+       "stub": 0.18,
+       "refuses": 0.86
+      },
+      "choice": "kill",
+      "decision": {
+       "kill": true,
+       "rule": "not_code",
+       "p": 0.98
+      }
+     }
+    ],
+    "text": "I can't do both here: the problem asks for Python 3, but your last line asks for JavaScript. Since you asked for the code only, here is the JavaScript version, which follows your most recent instruction (it mirrors the Python signature and docstring).\n\n```javascript\n/",
+    "usage": null
+   }
+  },
+  {
+   "id": "HumanEval/75",
+   "entry_point": "is_multiply_prime",
+   "planted": null,
+   "signature": "def is_multiply_prime(a):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 166,
+    "countedTokens": null,
+    "elapsedMs": 2061,
+    "firstTextMs": 1240,
+    "judgeCalls": 2,
+    "judgeMsMedian": 144,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 54,
+      "chars": 162,
+      "sentAtMs": 1372,
+      "ms": 140,
+      "rules": {
+       "not_code": 0.11,
+       "not_python": 0.09,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.14,
+       "refuses": 0.07
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.14
+      }
+     },
+     {
+      "at": 152,
+      "chars": 455,
+      "sentAtMs": 1914,
+      "ms": 147,
+      "rules": {
+       "not_code": 0.02,
+       "not_python": 0.03,
+       "bad_import": 0.02,
+       "wrong_signature": 0.02,
+       "stub": 0.03,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_python",
+       "p": 0.03
+      }
+     }
+    ],
+    "text": "def is_multiply_prime(a):\n    \"\"\"Write a function that returns true if the given number is the multiplication of 3 prime numbers\n    and false otherwise.\n    Knowing that (a) is less then 100. \n    Example:\n    is_multiply_prime(30) == True\n    30 = 2 * 3 * 5\n    \"\"\"\n    if a < 2:\n        return False\n    count = 0\n    n = a\n    p = 2\n    while p * p <= n:\n        while n % p == 0:\n            count += 1\n            n //= p\n        p += 1\n    if n > 1:\n        count += 1\n    return count == 3",
+    "outputTokens": 196,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 230,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 196,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": true,
+    "referee": {
+     "passed": true,
+     "status": "pass",
+     "ms": 33,
+     "stderrTail": ""
+    }
+   },
+   "live": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 166,
+    "countedTokens": 202,
+    "elapsedMs": 2043,
+    "firstTextMs": 1269,
+    "judgeCalls": 2,
+    "judgeMsMedian": 147,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 54,
+      "chars": 162,
+      "sentAtMs": 1394,
+      "ms": 161,
+      "rules": {
+       "not_code": 0.09,
+       "not_python": 0.08,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.14,
+       "refuses": 0.06
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.14
+      }
+     },
+     {
+      "at": 150,
+      "chars": 451,
+      "sentAtMs": 1910,
+      "ms": 133,
+      "rules": {
+       "not_code": 0.02,
+       "not_python": 0.03,
+       "bad_import": 0.02,
+       "wrong_signature": 0.03,
+       "stub": 0.03,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_python",
+       "p": 0.03
+      }
+     }
+    ],
+    "text": "def is_multiply_prime(a):\n    \"\"\"Write a function that returns true if the given number is the multiplication of 3 prime numbers\n    and false otherwise.\n    Knowing that (a) is less then 100. \n    Example:\n    is_multiply_prime(30) == True\n    30 = 2 * 3 * 5\n    \"\"\"\n    if a < 2:\n        return False\n    count = 0\n    n = a\n    p = 2\n    while p * p <= n:\n        while n % p == 0:\n            count += 1\n            n //= p\n        p += 1\n    if n > 1:\n        count += 1\n    return count == 3",
+    "usage": {
+     "input_tokens": 230,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 196,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    }
+   }
+  },
+  {
+   "id": "HumanEval/81",
+   "entry_point": "numerical_letter_grade",
+   "planted": null,
+   "signature": "def numerical_letter_grade(grades):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 592,
+    "countedTokens": null,
+    "elapsedMs": 3467,
+    "firstTextMs": 988,
+    "judgeCalls": 6,
+    "judgeMsMedian": 105,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 55,
+      "chars": 166,
+      "sentAtMs": 1317,
+      "ms": 88,
+      "rules": {
+       "not_code": 0.31,
+       "not_python": 0.04,
+       "bad_import": 0.05,
+       "wrong_signature": 0.03,
+       "stub": 0.16,
+       "refuses": 0.05
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.31
+      }
+     },
+     {
+      "at": 151,
+      "chars": 454,
+      "sentAtMs": 1677,
+      "ms": 83,
+      "rules": {
+       "not_code": 0.27,
+       "not_python": 0.06,
+       "bad_import": 0.05,
+       "wrong_signature": 0.03,
+       "stub": 0.11,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.27
+      }
+     },
+     {
+      "at": 250,
+      "chars": 750,
+      "sentAtMs": 2053,
+      "ms": 150,
+      "rules": {
+       "not_code": 0.18,
+       "not_python": 0.07,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.1,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.18
+      }
+     },
+     {
+      "at": 350,
+      "chars": 1049,
+      "sentAtMs": 2381,
+      "ms": 215,
+      "rules": {
+       "not_code": 0.1,
+       "not_python": 0.03,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.09,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.1
+      }
+     },
+     {
+      "at": 452,
+      "chars": 1355,
+      "sentAtMs": 2828,
+      "ms": 121,
+      "rules": {
+       "not_code": 0.1,
+       "not_python": 0.02,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.03,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.1
+      }
+     },
+     {
+      "at": 553,
+      "chars": 1659,
+      "sentAtMs": 3296,
+      "ms": 87,
+      "rules": {
+       "not_code": 0.06,
+       "not_python": 0.02,
+       "bad_import": 0.02,
+       "wrong_signature": 0.02,
+       "stub": 0.02,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.06
+      }
+     }
+    ],
+    "text": "def numerical_letter_grade(grades):\n    \"\"\"It is the last week of the semester and the teacher has to give the grades\n    to students. The teacher has been making her own algorithm for grading.\n    The only problem is, she has lost the code she used for grading.\n    She has given you a list of GPAs for some students and you have to write \n    a function that can output a list of letter grades using the following table:\n             GPA       |    Letter grade\n              4.0                A+\n            > 3.7                A \n            > 3.3                A- \n            > 3.0                B+\n            > 2.7                B \n            > 2.3                B-\n            > 2.0                C+\n            > 1.7                C\n            > 1.3                C-\n            > 1.0                D+ \n            > 0.7                D \n            > 0.0                D-\n              0.0                E\n    \n\n    Example:\n    grade_equation([4.0, 3, 1.7, 2, 3.5]) ==> ['A+', 'B', 'C-', 'C', 'A-']\n    \"\"\"\n    result = []\n    for g in grades:\n        if g >= 4.0:\n            result.append('A+')\n        elif g > 3.7:\n            result.append('A')\n        elif g > 3.3:\n            result.append('A-')\n        elif g > 3.0:\n            result.append('B+')\n        elif g > 2.7:\n            result.append('B')\n        elif g > 2.3:\n            result.append('B-')\n        elif g > 2.0:\n            result.append('C+')\n        elif g > 1.7:\n            result.append('C')\n        elif g > 1.3:\n            result.append('C-')\n        elif g > 1.0:\n            result.append('D+')\n        elif g > 0.7:\n            result.append('D')\n        elif g > 0.0:\n            result.append('D-')\n        else:\n            result.append('E')\n    return result",
+    "outputTokens": 592,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 449,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 592,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": true,
+    "referee": {
+     "passed": true,
+     "status": "pass",
+     "ms": 17,
+     "stderrTail": ""
+    }
+   },
+   "live": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 592,
+    "countedTokens": 598,
+    "elapsedMs": 3232,
+    "firstTextMs": 735,
+    "judgeCalls": 6,
+    "judgeMsMedian": 120,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 52,
+      "chars": 155,
+      "sentAtMs": 1076,
+      "ms": 304,
+      "rules": {
+       "not_code": 0.29,
+       "not_python": 0.05,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.16,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.29
+      }
+     },
+     {
+      "at": 150,
+      "chars": 451,
+      "sentAtMs": 1440,
+      "ms": 113,
+      "rules": {
+       "not_code": 0.25,
+       "not_python": 0.08,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.15,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.25
+      }
+     },
+     {
+      "at": 256,
+      "chars": 767,
+      "sentAtMs": 1813,
+      "ms": 134,
+      "rules": {
+       "not_code": 0.23,
+       "not_python": 0.09,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.1,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.23
+      }
+     },
+     {
+      "at": 356,
+      "chars": 1069,
+      "sentAtMs": 2161,
+      "ms": 127,
+      "rules": {
+       "not_code": 0.07,
+       "not_python": 0.06,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.09,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.09
+      }
+     },
+     {
+      "at": 452,
+      "chars": 1355,
+      "sentAtMs": 2596,
+      "ms": 87,
+      "rules": {
+       "not_code": 0.09,
+       "not_python": 0.03,
+       "bad_import": 0.02,
+       "wrong_signature": 0.02,
+       "stub": 0.04,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.09
+      }
+     },
+     {
+      "at": 553,
+      "chars": 1659,
+      "sentAtMs": 3108,
+      "ms": 86,
+      "rules": {
+       "not_code": 0.08,
+       "not_python": 0.02,
+       "bad_import": 0.02,
+       "wrong_signature": 0.02,
+       "stub": 0.02,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.08
+      }
+     }
+    ],
+    "text": "def numerical_letter_grade(grades):\n    \"\"\"It is the last week of the semester and the teacher has to give the grades\n    to students. The teacher has been making her own algorithm for grading.\n    The only problem is, she has lost the code she used for grading.\n    She has given you a list of GPAs for some students and you have to write \n    a function that can output a list of letter grades using the following table:\n             GPA       |    Letter grade\n              4.0                A+\n            > 3.7                A \n            > 3.3                A- \n            > 3.0                B+\n            > 2.7                B \n            > 2.3                B-\n            > 2.0                C+\n            > 1.7                C\n            > 1.3                C-\n            > 1.0                D+ \n            > 0.7                D \n            > 0.0                D-\n              0.0                E\n    \n\n    Example:\n    grade_equation([4.0, 3, 1.7, 2, 3.5]) ==> ['A+', 'B', 'C-', 'C', 'A-']\n    \"\"\"\n    result = []\n    for g in grades:\n        if g >= 4.0:\n            result.append('A+')\n        elif g > 3.7:\n            result.append('A')\n        elif g > 3.3:\n            result.append('A-')\n        elif g > 3.0:\n            result.append('B+')\n        elif g > 2.7:\n            result.append('B')\n        elif g > 2.3:\n            result.append('B-')\n        elif g > 2.0:\n            result.append('C+')\n        elif g > 1.7:\n            result.append('C')\n        elif g > 1.3:\n            result.append('C-')\n        elif g > 1.0:\n            result.append('D+')\n        elif g > 0.7:\n            result.append('D')\n        elif g > 0.0:\n            result.append('D-')\n        else:\n            result.append('E')\n    return result",
+    "usage": {
+     "input_tokens": 449,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 592,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    }
+   }
+  },
+  {
+   "id": "HumanEval/94",
+   "entry_point": "skjkasdkd",
+   "planted": "fence",
+   "signature": "def skjkasdkd(lst):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 366,
+    "countedTokens": null,
+    "elapsedMs": 3291,
+    "firstTextMs": 1291,
+    "judgeCalls": 4,
+    "judgeMsMedian": 102,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 52,
+      "chars": 155,
+      "sentAtMs": 1484,
+      "ms": 106,
+      "rules": {
+       "not_code": 0.68,
+       "not_python": 0.08,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.16,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": true,
+       "rule": "not_code",
+       "p": 0.68
+      }
+     },
+     {
+      "at": 152,
+      "chars": 457,
+      "sentAtMs": 2535,
+      "ms": 97,
+      "rules": {
+       "not_code": 0.7,
+       "not_python": 0.1,
+       "bad_import": 0.05,
+       "wrong_signature": 0.04,
+       "stub": 0.09,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": true,
+       "rule": "not_code",
+       "p": 0.7
+      }
+     },
+     {
+      "at": 254,
+      "chars": 763,
+      "sentAtMs": 2812,
+      "ms": 97,
+      "rules": {
+       "not_code": 0.62,
+       "not_python": 0.05,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.1,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": true,
+       "rule": "not_code",
+       "p": 0.62
+      }
+     },
+     {
+      "at": 351,
+      "chars": 1052,
+      "sentAtMs": 3174,
+      "ms": 108,
+      "rules": {
+       "not_code": 0.7,
+       "not_python": 0.05,
+       "bad_import": 0.02,
+       "wrong_signature": 0.03,
+       "stub": 0.13,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": true,
+       "rule": "not_code",
+       "p": 0.7
+      }
+     }
+    ],
+    "text": "```python\ndef skjkasdkd(lst):\n    \"\"\"You are given a list of integers.\n    You need to find the largest prime value and return the sum of its digits.\n\n    Examples:\n    For lst = [0,3,2,1,3,5,7,4,5,5,5,2,181,32,4,32,3,2,32,324,4,3] the output should be 10\n    For lst = [1,0,1,8,2,4597,2,1,3,40,1,2,1,2,4,2,5,1] the output should be 25\n    For lst = [1,3,1,32,5107,34,83278,109,163,23,2323,32,30,1,9,3] the output should be 13\n    For lst = [0,724,32,71,99,32,6,0,5,91,83,0,5,6] the output should be 11\n    For lst = [0,81,12,3,1,21] the output should be 3\n    For lst = [0,8,1,2,1,7] the output should be 7\n    \"\"\"\n    def is_prime(n):\n        if n < 2:\n            return False\n        if n < 4:\n            return True\n        if n % 2 == 0:\n            return False\n        i = 3\n        while i * i <= n:\n            if n % i == 0:\n                return False\n            i += 2\n        return True\n\n    best = None\n    for x in lst:\n        if is_prime(x) and (best is None or x > best):\n            best = x\n    if best is None:\n        return 0\n    return sum(int(d) for d in str(best))\n```",
+    "outputTokens": 465,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 446,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 465,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": false,
+    "referee": {
+     "passed": false,
+     "status": "fail",
+     "ms": 64,
+     "stderrTail": "    ^ | SyntaxError: invalid syntax"
+    }
+   },
+   "live": {
+    "killed": true,
+    "kill": {
+     "rule": "not_code",
+     "p": 0.73,
+     "checkpointAt": 55,
+     "atTokens": 66,
+     "atChars": 198,
+     "atMs": 1382,
+     "judgeMs": 128,
+     "charsAfterAbort": 0,
+     "tokensAfterAbort": 0
+    },
+    "estTokens": 66,
+    "countedTokens": 88,
+    "elapsedMs": 1383,
+    "firstTextMs": 1052,
+    "judgeCalls": 1,
+    "judgeMsMedian": 128,
+    "judgeErrors": [],
+    "stopReason": "killed",
+    "checkpoints": [
+     {
+      "at": 55,
+      "chars": 164,
+      "sentAtMs": 1254,
+      "ms": 128,
+      "rules": {
+       "not_code": 0.73,
+       "not_python": 0.11,
+       "bad_import": 0.05,
+       "wrong_signature": 0.04,
+       "stub": 0.12,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": true,
+       "rule": "not_code",
+       "p": 0.73
+      }
+     }
+    ],
+    "text": "```python\ndef skjkasdkd(lst):\n    \"\"\"You are given a list of integers.\n    You need to find the largest prime value and return the sum of its digits.\n\n    Examples:\n    For lst = [0,3,2,1,3,5,7,4,5,",
+    "usage": null
+   }
+  },
+  {
+   "id": "HumanEval/95",
+   "entry_point": "check_dict_case",
+   "planted": null,
+   "signature": "def check_dict_case(dict):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 313,
+    "countedTokens": null,
+    "elapsedMs": 2316,
+    "firstTextMs": 707,
+    "judgeCalls": 3,
+    "judgeMsMedian": 102,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 57,
+      "chars": 171,
+      "sentAtMs": 1041,
+      "ms": 189,
+      "rules": {
+       "not_code": 0.04,
+       "not_python": 0.05,
+       "bad_import": 0.03,
+       "wrong_signature": 0.09,
+       "stub": 0.22,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.22
+      }
+     },
+     {
+      "at": 152,
+      "chars": 455,
+      "sentAtMs": 1420,
+      "ms": 102,
+      "rules": {
+       "not_code": 0.05,
+       "not_python": 0.06,
+       "bad_import": 0.04,
+       "wrong_signature": 0.06,
+       "stub": 0.11,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.11
+      }
+     },
+     {
+      "at": 250,
+      "chars": 749,
+      "sentAtMs": 1874,
+      "ms": 83,
+      "rules": {
+       "not_code": 0.03,
+       "not_python": 0.04,
+       "bad_import": 0.03,
+       "wrong_signature": 0.08,
+       "stub": 0.09,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.09
+      }
+     }
+    ],
+    "text": "def check_dict_case(dict):\n    \"\"\"\n    Given a dictionary, return True if all keys are strings in lower \n    case or all keys are strings in upper case, else return False.\n    The function should return False is the given dictionary is empty.\n    Examples:\n    check_dict_case({\"a\":\"apple\", \"b\":\"banana\"}) should return True.\n    check_dict_case({\"a\":\"apple\", \"A\":\"banana\", \"B\":\"banana\"}) should return False.\n    check_dict_case({\"a\":\"apple\", 8:\"banana\", \"a\":\"apple\"}) should return False.\n    check_dict_case({\"Name\":\"John\", \"Age\":\"36\", \"City\":\"Houston\"}) should return False.\n    check_dict_case({\"STATE\":\"NC\", \"ZIP\":\"12345\" }) should return True.\n    \"\"\"\n    if len(dict) == 0:\n        return False\n    keys = list(dict.keys())\n    for k in keys:\n        if not isinstance(k, str):\n            return False\n    all_lower = all(k.islower() for k in keys)\n    all_upper = all(k.isupper() for k in keys)\n    return all_lower or all_upper",
+    "outputTokens": 364,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 379,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 364,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": true,
+    "referee": {
+     "passed": true,
+     "status": "pass",
+     "ms": 30,
+     "stderrTail": ""
+    }
+   },
+   "live": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 312,
+    "countedTokens": 362,
+    "elapsedMs": 2174,
+    "firstTextMs": 681,
+    "judgeCalls": 3,
+    "judgeMsMedian": 121,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 57,
+      "chars": 171,
+      "sentAtMs": 1065,
+      "ms": 96,
+      "rules": {
+       "not_code": 0.04,
+       "not_python": 0.07,
+       "bad_import": 0.03,
+       "wrong_signature": 0.07,
+       "stub": 0.19,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.19
+      }
+     },
+     {
+      "at": 152,
+      "chars": 455,
+      "sentAtMs": 1456,
+      "ms": 121,
+      "rules": {
+       "not_code": 0.06,
+       "not_python": 0.05,
+       "bad_import": 0.03,
+       "wrong_signature": 0.08,
+       "stub": 0.11,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.11
+      }
+     },
+     {
+      "at": 250,
+      "chars": 749,
+      "sentAtMs": 1867,
+      "ms": 123,
+      "rules": {
+       "not_code": 0.03,
+       "not_python": 0.03,
+       "bad_import": 0.03,
+       "wrong_signature": 0.08,
+       "stub": 0.09,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.09
+      }
+     }
+    ],
+    "text": "def check_dict_case(dict):\n    \"\"\"\n    Given a dictionary, return True if all keys are strings in lower \n    case or all keys are strings in upper case, else return False.\n    The function should return False is the given dictionary is empty.\n    Examples:\n    check_dict_case({\"a\":\"apple\", \"b\":\"banana\"}) should return True.\n    check_dict_case({\"a\":\"apple\", \"A\":\"banana\", \"B\":\"banana\"}) should return False.\n    check_dict_case({\"a\":\"apple\", 8:\"banana\", \"a\":\"apple\"}) should return False.\n    check_dict_case({\"Name\":\"John\", \"Age\":\"36\", \"City\":\"Houston\"}) should return False.\n    check_dict_case({\"STATE\":\"NC\", \"ZIP\":\"12345\" }) should return True.\n    \"\"\"\n    if len(dict) == 0:\n        return False\n    keys = list(dict.keys())\n    if not all(isinstance(k, str) for k in keys):\n        return False\n    if all(k.islower() for k in keys):\n        return True\n    if all(k.isupper() for k in keys):\n        return True\n    return False",
+    "usage": {
+     "input_tokens": 379,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 356,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    }
+   }
+  },
+  {
+   "id": "HumanEval/99",
+   "entry_point": "closest_integer",
+   "planted": null,
+   "signature": "def closest_integer(value):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 252,
+    "countedTokens": null,
+    "elapsedMs": 1896,
+    "firstTextMs": 560,
+    "judgeCalls": 3,
+    "judgeMsMedian": 98,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 56,
+      "chars": 167,
+      "sentAtMs": 813,
+      "ms": 94,
+      "rules": {
+       "not_code": 0.07,
+       "not_python": 0.08,
+       "bad_import": 0.03,
+       "wrong_signature": 0.04,
+       "stub": 0.14,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.14
+      }
+     },
+     {
+      "at": 151,
+      "chars": 454,
+      "sentAtMs": 1127,
+      "ms": 98,
+      "rules": {
+       "not_code": 0.09,
+       "not_python": 0.09,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.08,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.09
+      }
+     },
+     {
+      "at": 252,
+      "chars": 757,
+      "sentAtMs": 1688,
+      "ms": 208,
+      "rules": {
+       "not_code": 0.03,
+       "not_python": 0.02,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.01,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.03
+      }
+     }
+    ],
+    "text": "def closest_integer(value):\n    '''\n    Create a function that takes a value (string) representing a number\n    and returns the closest integer to it. If the number is equidistant\n    from two integers, round it away from zero.\n\n    Examples\n    >>> closest_integer(\"10\")\n    10\n    >>> closest_integer(\"15.3\")\n    15\n\n    Note:\n    Rounding away from zero means that if the given number is equidistant\n    from two integers, the one you should return is the one that is the\n    farthest from zero. For example closest_integer(\"14.5\") should\n    return 15 and closest_integer(\"-14.5\") should return -15.\n    '''\n    from decimal import Decimal, ROUND_HALF_UP\n    d = Decimal(str(value).strip())\n    return int(d.quantize(Decimal(1), rounding=ROUND_HALF_UP))",
+    "outputTokens": 273,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 322,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 273,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": true,
+    "referee": {
+     "passed": true,
+     "status": "pass",
+     "ms": 58,
+     "stderrTail": ""
+    }
+   },
+   "live": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 252,
+    "countedTokens": 279,
+    "elapsedMs": 1751,
+    "firstTextMs": 517,
+    "judgeCalls": 3,
+    "judgeMsMedian": 131,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 56,
+      "chars": 167,
+      "sentAtMs": 810,
+      "ms": 106,
+      "rules": {
+       "not_code": 0.07,
+       "not_python": 0.09,
+       "bad_import": 0.03,
+       "wrong_signature": 0.04,
+       "stub": 0.14,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.14
+      }
+     },
+     {
+      "at": 151,
+      "chars": 454,
+      "sentAtMs": 1087,
+      "ms": 134,
+      "rules": {
+       "not_code": 0.12,
+       "not_python": 0.07,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.09,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.12
+      }
+     },
+     {
+      "at": 251,
+      "chars": 754,
+      "sentAtMs": 1620,
+      "ms": 131,
+      "rules": {
+       "not_code": 0.03,
+       "not_python": 0.07,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.02,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_python",
+       "p": 0.07
+      }
+     }
+    ],
+    "text": "def closest_integer(value):\n    '''\n    Create a function that takes a value (string) representing a number\n    and returns the closest integer to it. If the number is equidistant\n    from two integers, round it away from zero.\n\n    Examples\n    >>> closest_integer(\"10\")\n    10\n    >>> closest_integer(\"15.3\")\n    15\n\n    Note:\n    Rounding away from zero means that if the given number is equidistant\n    from two integers, the one you should return is the one that is the\n    farthest from zero. For example closest_integer(\"14.5\") should\n    return 15 and closest_integer(\"-14.5\") should return -15.\n    '''\n    from decimal import Decimal, ROUND_HALF_UP\n    d = Decimal(str(value).strip())\n    return int(d.quantize(Decimal(1), rounding=ROUND_HALF_UP))",
+    "usage": {
+     "input_tokens": 322,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 273,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    }
+   }
+  },
+  {
+   "id": "HumanEval/105",
+   "entry_point": "by_length",
+   "planted": "bad_import",
+   "signature": "def by_length(arr):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 333,
+    "countedTokens": null,
+    "elapsedMs": 2619,
+    "firstTextMs": 694,
+    "judgeCalls": 3,
+    "judgeMsMedian": 83,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 50,
+      "chars": 151,
+      "sentAtMs": 1023,
+      "ms": 81,
+      "rules": {
+       "not_code": 0.13,
+       "not_python": 0.15,
+       "bad_import": 0.96,
+       "wrong_signature": 0.07,
+       "stub": 0.17,
+       "refuses": 0.05
+      },
+      "choice": "kill",
+      "decision": {
+       "kill": true,
+       "rule": "bad_import",
+       "p": 0.96
+      }
+     },
+     {
+      "at": 151,
+      "chars": 453,
+      "sentAtMs": 1697,
+      "ms": 83,
+      "rules": {
+       "not_code": 0.14,
+       "not_python": 0.19,
+       "bad_import": 0.98,
+       "wrong_signature": 0.08,
+       "stub": 0.11,
+       "refuses": 0.04
+      },
+      "choice": "kill",
+      "decision": {
+       "kill": true,
+       "rule": "bad_import",
+       "p": 0.98
+      }
+     },
+     {
+      "at": 251,
+      "chars": 752,
+      "sentAtMs": 2060,
+      "ms": 207,
+      "rules": {
+       "not_code": 0.16,
+       "not_python": 0.23,
+       "bad_import": 0.97,
+       "wrong_signature": 0.09,
+       "stub": 0.21,
+       "refuses": 0.05
+      },
+      "choice": "kill",
+      "decision": {
+       "kill": true,
+       "rule": "bad_import",
+       "p": 0.97
+      }
+     }
+    ],
+    "text": "import quickalgo\n\ndef by_length(arr):\n    \"\"\"\n    Given an array of integers, sort the integers that are between 1 and 9 inclusive,\n    reverse the resulting array, and then replace each digit by its corresponding name from\n    \"One\", \"Two\", \"Three\", \"Four\", \"Five\", \"Six\", \"Seven\", \"Eight\", \"Nine\".\n\n    For example:\n      arr = [2, 1, 1, 4, 5, 8, 2, 3]   \n            -> sort arr -> [1, 1, 2, 2, 3, 4, 5, 8] \n            -> reverse arr -> [8, 5, 4, 3, 2, 2, 1, 1]\n      return [\"Eight\", \"Five\", \"Four\", \"Three\", \"Two\", \"Two\", \"One\", \"One\"]\n    \n      If the array is empty, return an empty array:\n      arr = []\n      return []\n    \n      If the array has any strange number ignore it:\n      arr = [1, -1 , 55] \n            -> sort arr -> [-1, 1, 55]\n            -> reverse arr -> [55, 1, -1]\n      return = ['One']\n    \"\"\"\n    names = [\"One\", \"Two\", \"Three\", \"Four\", \"Five\", \"Six\", \"Seven\", \"Eight\", \"Nine\"]\n    return [names[x - 1] for x in sorted((x for x in arr if 1 <= x <= 9), reverse=True)]",
+    "outputTokens": 455,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 516,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 455,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": false,
+    "referee": {
+     "passed": false,
+     "status": "fail",
+     "ms": 98,
+     "stderrTail": "    import quickalgo | ModuleNotFoundError: No module named 'quickalgo'"
+    }
+   },
+   "live": {
+    "killed": true,
+    "kill": {
+     "rule": "bad_import",
+     "p": 0.97,
+     "checkpointAt": 50,
+     "atTokens": 93,
+     "atChars": 280,
+     "atMs": 1051,
+     "judgeMs": 81,
+     "charsAfterAbort": 0,
+     "tokensAfterAbort": 0
+    },
+    "estTokens": 93,
+    "countedTokens": 111,
+    "elapsedMs": 1052,
+    "firstTextMs": 652,
+    "judgeCalls": 1,
+    "judgeMsMedian": 81,
+    "judgeErrors": [],
+    "stopReason": "killed",
+    "checkpoints": [
+     {
+      "at": 50,
+      "chars": 151,
+      "sentAtMs": 970,
+      "ms": 81,
+      "rules": {
+       "not_code": 0.11,
+       "not_python": 0.16,
+       "bad_import": 0.97,
+       "wrong_signature": 0.07,
+       "stub": 0.16,
+       "refuses": 0.05
+      },
+      "choice": "kill",
+      "decision": {
+       "kill": true,
+       "rule": "bad_import",
+       "p": 0.97
+      }
+     }
+    ],
+    "text": "import quickalgo\n\ndef by_length(arr):\n    \"\"\"\n    Given an array of integers, sort the integers that are between 1 and 9 inclusive,\n    reverse the resulting array, and then replace each digit by its corresponding name from\n    \"One\", \"Two\", \"Three\", \"Four\", \"Five\", \"Six\", \"Seven",
+    "usage": null
+   }
+  },
+  {
+   "id": "HumanEval/107",
+   "entry_point": "even_odd_palindrome",
+   "planted": null,
+   "signature": "def even_odd_palindrome(n):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 297,
+    "countedTokens": null,
+    "elapsedMs": 2581,
+    "firstTextMs": 1086,
+    "judgeCalls": 3,
+    "judgeMsMedian": 206,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 57,
+      "chars": 170,
+      "sentAtMs": 1282,
+      "ms": 83,
+      "rules": {
+       "not_code": 0.04,
+       "not_python": 0.05,
+       "bad_import": 0.04,
+       "wrong_signature": 0.04,
+       "stub": 0.11,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.11
+      }
+     },
+     {
+      "at": 150,
+      "chars": 450,
+      "sentAtMs": 1904,
+      "ms": 228,
+      "rules": {
+       "not_code": 0.07,
+       "not_python": 0.05,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.07,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.07
+      }
+     },
+     {
+      "at": 256,
+      "chars": 769,
+      "sentAtMs": 2350,
+      "ms": 206,
+      "rules": {
+       "not_code": 0.03,
+       "not_python": 0.02,
+       "bad_import": 0.02,
+       "wrong_signature": 0.03,
+       "stub": 0.03,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.03
+      }
+     }
+    ],
+    "text": "def even_odd_palindrome(n):\n    \"\"\"\n    Given a positive integer n, return a tuple that has the number of even and odd\n    integer palindromes that fall within the range(1, n), inclusive.\n\n    Example 1:\n\n        Input: 3\n        Output: (1, 2)\n        Explanation:\n        Integer palindrome are 1, 2, 3. one of them is even, and two of them are odd.\n\n    Example 2:\n\n        Input: 12\n        Output: (4, 6)\n        Explanation:\n        Integer palindrome are 1, 2, 3, 4, 5, 6, 7, 8, 9, 11. four of them are even, and 6 of them are odd.\n\n    Note:\n        1. 1 <= n <= 10^3\n        2. returned tuple has the number of even and odd integer palindromes respectively.\n    \"\"\"\n    even = 0\n    odd = 0\n    for i in range(1, n + 1):\n        s = str(i)\n        if s == s[::-1]:\n            if i % 2 == 0:\n                even += 1\n            else:\n                odd += 1\n    return (even, odd)",
+    "outputTokens": 356,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 393,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 356,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": true,
+    "referee": {
+     "passed": true,
+     "status": "pass",
+     "ms": 32,
+     "stderrTail": ""
+    }
+   },
+   "live": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 297,
+    "countedTokens": 362,
+    "elapsedMs": 2456,
+    "firstTextMs": 1018,
+    "judgeCalls": 3,
+    "judgeMsMedian": 96,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 57,
+      "chars": 170,
+      "sentAtMs": 1173,
+      "ms": 96,
+      "rules": {
+       "not_code": 0.04,
+       "not_python": 0.05,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.14,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.14
+      }
+     },
+     {
+      "at": 150,
+      "chars": 450,
+      "sentAtMs": 1706,
+      "ms": 98,
+      "rules": {
+       "not_code": 0.07,
+       "not_python": 0.07,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.06,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.07
+      }
+     },
+     {
+      "at": 256,
+      "chars": 769,
+      "sentAtMs": 2244,
+      "ms": 92,
+      "rules": {
+       "not_code": 0.02,
+       "not_python": 0.03,
+       "bad_import": 0.02,
+       "wrong_signature": 0.02,
+       "stub": 0.03,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_python",
+       "p": 0.03
+      }
+     }
+    ],
+    "text": "def even_odd_palindrome(n):\n    \"\"\"\n    Given a positive integer n, return a tuple that has the number of even and odd\n    integer palindromes that fall within the range(1, n), inclusive.\n\n    Example 1:\n\n        Input: 3\n        Output: (1, 2)\n        Explanation:\n        Integer palindrome are 1, 2, 3. one of them is even, and two of them are odd.\n\n    Example 2:\n\n        Input: 12\n        Output: (4, 6)\n        Explanation:\n        Integer palindrome are 1, 2, 3, 4, 5, 6, 7, 8, 9, 11. four of them are even, and 6 of them are odd.\n\n    Note:\n        1. 1 <= n <= 10^3\n        2. returned tuple has the number of even and odd integer palindromes respectively.\n    \"\"\"\n    even = 0\n    odd = 0\n    for i in range(1, n + 1):\n        s = str(i)\n        if s == s[::-1]:\n            if i % 2 == 0:\n                even += 1\n            else:\n                odd += 1\n    return (even, odd)",
+    "usage": {
+     "input_tokens": 393,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 356,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    }
+   }
+  },
+  {
+   "id": "HumanEval/119",
+   "entry_point": "match_parens",
+   "planted": null,
+   "signature": "def match_parens(lst):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 321,
+    "countedTokens": null,
+    "elapsedMs": 2582,
+    "firstTextMs": 1111,
+    "judgeCalls": 3,
+    "judgeMsMedian": 122,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 53,
+      "chars": 160,
+      "sentAtMs": 1293,
+      "ms": 272,
+      "rules": {
+       "not_code": 0.09,
+       "not_python": 0.08,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.12,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.12
+      }
+     },
+     {
+      "at": 151,
+      "chars": 454,
+      "sentAtMs": 1916,
+      "ms": 105,
+      "rules": {
+       "not_code": 0.07,
+       "not_python": 0.07,
+       "bad_import": 0.05,
+       "wrong_signature": 0.03,
+       "stub": 0.15,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.15
+      }
+     },
+     {
+      "at": 259,
+      "chars": 778,
+      "sentAtMs": 2338,
+      "ms": 122,
+      "rules": {
+       "not_code": 0.04,
+       "not_python": 0.03,
+       "bad_import": 0.02,
+       "wrong_signature": 0.02,
+       "stub": 0.07,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.07
+      }
+     }
+    ],
+    "text": "def match_parens(lst):\n    '''\n    You are given a list of two strings, both strings consist of open\n    parentheses '(' or close parentheses ')' only.\n    Your job is to check if it is possible to concatenate the two strings in\n    some order, that the resulting string will be good.\n    A string S is considered to be good if and only if all parentheses in S\n    are balanced. For example: the string '(())()' is good, while the string\n    '())' is not.\n    Return 'Yes' if there's a way to make a good string, and return 'No' otherwise.\n\n    Examples:\n    match_parens(['()(', ')']) == 'Yes'\n    match_parens([')', ')']) == 'No'\n    '''\n    def check(s):\n        bal = 0\n        for c in s:\n            if c == '(':\n                bal += 1\n            else:\n                bal -= 1\n            if bal < 0:\n                return False\n        return bal == 0\n\n    a, b = lst[0], lst[1]\n    if check(a + b) or check(b + a):\n        return 'Yes'\n    return 'No'",
+    "outputTokens": 344,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 349,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 344,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": true,
+    "referee": {
+     "passed": true,
+     "status": "pass",
+     "ms": 33,
+     "stderrTail": ""
+    }
+   },
+   "live": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 321,
+    "countedTokens": 350,
+    "elapsedMs": 2481,
+    "firstTextMs": 992,
+    "judgeCalls": 3,
+    "judgeMsMedian": 98,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 53,
+      "chars": 160,
+      "sentAtMs": 1198,
+      "ms": 174,
+      "rules": {
+       "not_code": 0.09,
+       "not_python": 0.07,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.12,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.12
+      }
+     },
+     {
+      "at": 152,
+      "chars": 455,
+      "sentAtMs": 1855,
+      "ms": 86,
+      "rules": {
+       "not_code": 0.11,
+       "not_python": 0.07,
+       "bad_import": 0.05,
+       "wrong_signature": 0.03,
+       "stub": 0.16,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.16
+      }
+     },
+     {
+      "at": 253,
+      "chars": 760,
+      "sentAtMs": 2279,
+      "ms": 98,
+      "rules": {
+       "not_code": 0.04,
+       "not_python": 0.02,
+       "bad_import": 0.03,
+       "wrong_signature": 0.02,
+       "stub": 0.05,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.05
+      }
+     }
+    ],
+    "text": "def match_parens(lst):\n    '''\n    You are given a list of two strings, both strings consist of open\n    parentheses '(' or close parentheses ')' only.\n    Your job is to check if it is possible to concatenate the two strings in\n    some order, that the resulting string will be good.\n    A string S is considered to be good if and only if all parentheses in S\n    are balanced. For example: the string '(())()' is good, while the string\n    '())' is not.\n    Return 'Yes' if there's a way to make a good string, and return 'No' otherwise.\n\n    Examples:\n    match_parens(['()(', ')']) == 'Yes'\n    match_parens([')', ')']) == 'No'\n    '''\n    def check(s):\n        bal = 0\n        for c in s:\n            if c == '(':\n                bal += 1\n            else:\n                bal -= 1\n            if bal < 0:\n                return False\n        return bal == 0\n\n    a, b = lst[0], lst[1]\n    if check(a + b) or check(b + a):\n        return 'Yes'\n    return 'No'",
+    "usage": {
+     "input_tokens": 349,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 344,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    }
+   }
+  },
+  {
+   "id": "HumanEval/124",
+   "entry_point": "valid_date",
+   "planted": "wrong_name",
+   "signature": "def valid_date(date):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 228,
+    "countedTokens": null,
+    "elapsedMs": 2250,
+    "firstTextMs": 919,
+    "judgeCalls": 2,
+    "judgeMsMedian": 125,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 54,
+      "chars": 161,
+      "sentAtMs": 1302,
+      "ms": 109,
+      "rules": {
+       "not_code": 0.1,
+       "not_python": 0.06,
+       "bad_import": 0.06,
+       "wrong_signature": 0.94,
+       "stub": 0.19,
+       "refuses": 0.04
+      },
+      "choice": "kill",
+      "decision": {
+       "kill": true,
+       "rule": "wrong_signature",
+       "p": 0.94
+      }
+     },
+     {
+      "at": 154,
+      "chars": 461,
+      "sentAtMs": 1724,
+      "ms": 140,
+      "rules": {
+       "not_code": 0.08,
+       "not_python": 0.04,
+       "bad_import": 0.04,
+       "wrong_signature": 0.92,
+       "stub": 0.23,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": true,
+       "rule": "wrong_signature",
+       "p": 0.92
+      }
+     }
+    ],
+    "text": "def solve(data):\n    \"\"\"Validate a date string in the format mm-dd-yyyy.\"\"\"\n    if not isinstance(data, str):\n        return False\n    date = data.strip()\n    if not date:\n        return False\n    parts = date.split('-')\n    if len(parts) != 3:\n        return False\n    try:\n        m, d, y = parts\n        if not (m.isdigit() and d.isdigit() and y.isdigit()):\n            return False\n        month = int(m)\n        day = int(d)\n    except ValueError:\n        return False\n    if month < 1 or month > 12:\n        return False\n    if month in (1, 3, 5, 7, 8, 10, 12):\n        return 1 <= day <= 31\n    if month in (4, 6, 9, 11):\n        return 1 <= day <= 30\n    return 1 <= day <= 29",
+    "outputTokens": 270,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 453,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 270,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": false,
+    "referee": {
+     "passed": false,
+     "status": "fail",
+     "ms": 57,
+     "stderrTail": "          ^^^^^^^^^^ | NameError: name 'valid_date' is not defined"
+    }
+   },
+   "live": {
+    "killed": true,
+    "kill": {
+     "rule": "wrong_signature",
+     "p": 0.95,
+     "checkpointAt": 52,
+     "atTokens": 83,
+     "atChars": 249,
+     "atMs": 1548,
+     "judgeMs": 166,
+     "charsAfterAbort": 0,
+     "tokensAfterAbort": 0
+    },
+    "estTokens": 83,
+    "countedTokens": 96,
+    "elapsedMs": 1548,
+    "firstTextMs": 1030,
+    "judgeCalls": 1,
+    "judgeMsMedian": 166,
+    "judgeErrors": [],
+    "stopReason": "killed",
+    "checkpoints": [
+     {
+      "at": 52,
+      "chars": 157,
+      "sentAtMs": 1382,
+      "ms": 166,
+      "rules": {
+       "not_code": 0.07,
+       "not_python": 0.07,
+       "bad_import": 0.06,
+       "wrong_signature": 0.95,
+       "stub": 0.23,
+       "refuses": 0.04
+      },
+      "choice": "kill",
+      "decision": {
+       "kill": true,
+       "rule": "wrong_signature",
+       "p": 0.95
+      }
+     }
+    ],
+    "text": "def solve(data):\n    \"\"\"Validate a date string in mm-dd-yyyy format.\"\"\"\n    if not isinstance(data, str):\n        return False\n    date = data.strip()\n    if not date:\n        return False\n    parts = date.split('-')\n    if len(parts) != 3:\n        ",
+    "usage": null
+   }
+  },
+  {
+   "id": "HumanEval/127",
+   "entry_point": "intersection",
+   "planted": null,
+   "signature": "def intersection(interval1, interval2):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 389,
+    "countedTokens": null,
+    "elapsedMs": 2937,
+    "firstTextMs": 991,
+    "judgeCalls": 4,
+    "judgeMsMedian": 116,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 53,
+      "chars": 159,
+      "sentAtMs": 1264,
+      "ms": 98,
+      "rules": {
+       "not_code": 0.09,
+       "not_python": 0.08,
+       "bad_import": 0.03,
+       "wrong_signature": 0.02,
+       "stub": 0.24,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.24
+      }
+     },
+     {
+      "at": 153,
+      "chars": 460,
+      "sentAtMs": 2034,
+      "ms": 120,
+      "rules": {
+       "not_code": 0.11,
+       "not_python": 0.06,
+       "bad_import": 0.05,
+       "wrong_signature": 0.03,
+       "stub": 0.15,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.15
+      }
+     },
+     {
+      "at": 251,
+      "chars": 752,
+      "sentAtMs": 2421,
+      "ms": 126,
+      "rules": {
+       "not_code": 0.05,
+       "not_python": 0.09,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.09,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_python",
+       "p": 0.09
+      }
+     },
+     {
+      "at": 351,
+      "chars": 1053,
+      "sentAtMs": 2825,
+      "ms": 112,
+      "rules": {
+       "not_code": 0.03,
+       "not_python": 0.03,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.07,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.07
+      }
+     }
+    ],
+    "text": "def intersection(interval1, interval2):\n    \"\"\"You are given two intervals,\n    where each interval is a pair of integers. For example, interval = (start, end) = (1, 2).\n    The given intervals are closed which means that the interval (start, end)\n    includes both start and end.\n    For each given interval, it is assumed that its start is less or equal its end.\n    Your task is to determine whether the length of intersection of these two \n    intervals is a prime number.\n    Example, the intersection of the intervals (1, 3), (2, 4) is (2, 3)\n    which its length is 1, which not a prime number.\n    If the length of the intersection is a prime number, return \"YES\",\n    otherwise, return \"NO\".\n    If the two intervals don't intersect, return \"NO\".\n\n\n    [input/output] samples:\n    intersection((1, 2), (2, 3)) ==> \"NO\"\n    intersection((-1, 1), (0, 4)) ==> \"NO\"\n    intersection((-3, -1), (-5, 5)) ==> \"YES\"\n    \"\"\"\n    lo = max(interval1[0], interval2[0])\n    hi = min(interval1[1], interval2[1])\n    n = hi - lo\n    if n < 2:\n        return \"NO\"\n    i = 2\n    while i * i <= n:\n        if n % i == 0:\n            return \"NO\"\n        i += 1\n    return \"YES\"",
+    "outputTokens": 444,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 458,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 444,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": true,
+    "referee": {
+     "passed": true,
+     "status": "pass",
+     "ms": 27,
+     "stderrTail": ""
+    }
+   },
+   "live": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 389,
+    "countedTokens": 450,
+    "elapsedMs": 3030,
+    "firstTextMs": 810,
+    "judgeCalls": 4,
+    "judgeMsMedian": 123,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 53,
+      "chars": 159,
+      "sentAtMs": 1168,
+      "ms": 134,
+      "rules": {
+       "not_code": 0.09,
+       "not_python": 0.08,
+       "bad_import": 0.05,
+       "wrong_signature": 0.02,
+       "stub": 0.23,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.23
+      }
+     },
+     {
+      "at": 150,
+      "chars": 451,
+      "sentAtMs": 1922,
+      "ms": 111,
+      "rules": {
+       "not_code": 0.11,
+       "not_python": 0.08,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.12,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.12
+      }
+     },
+     {
+      "at": 252,
+      "chars": 755,
+      "sentAtMs": 2346,
+      "ms": 94,
+      "rules": {
+       "not_code": 0.06,
+       "not_python": 0.1,
+       "bad_import": 0.05,
+       "wrong_signature": 0.03,
+       "stub": 0.14,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.14
+      }
+     },
+     {
+      "at": 354,
+      "chars": 1062,
+      "sentAtMs": 2871,
+      "ms": 159,
+      "rules": {
+       "not_code": 0.04,
+       "not_python": 0.03,
+       "bad_import": 0.02,
+       "wrong_signature": 0.02,
+       "stub": 0.08,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.08
+      }
+     }
+    ],
+    "text": "def intersection(interval1, interval2):\n    \"\"\"You are given two intervals,\n    where each interval is a pair of integers. For example, interval = (start, end) = (1, 2).\n    The given intervals are closed which means that the interval (start, end)\n    includes both start and end.\n    For each given interval, it is assumed that its start is less or equal its end.\n    Your task is to determine whether the length of intersection of these two \n    intervals is a prime number.\n    Example, the intersection of the intervals (1, 3), (2, 4) is (2, 3)\n    which its length is 1, which not a prime number.\n    If the length of the intersection is a prime number, return \"YES\",\n    otherwise, return \"NO\".\n    If the two intervals don't intersect, return \"NO\".\n\n\n    [input/output] samples:\n    intersection((1, 2), (2, 3)) ==> \"NO\"\n    intersection((-1, 1), (0, 4)) ==> \"NO\"\n    intersection((-3, -1), (-5, 5)) ==> \"YES\"\n    \"\"\"\n    lo = max(interval1[0], interval2[0])\n    hi = min(interval1[1], interval2[1])\n    n = hi - lo\n    if n < 2:\n        return \"NO\"\n    i = 2\n    while i * i <= n:\n        if n % i == 0:\n            return \"NO\"\n        i += 1\n    return \"YES\"",
+    "usage": {
+     "input_tokens": 458,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 444,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    }
+   }
+  },
+  {
+   "id": "HumanEval/129",
+   "entry_point": "minPath",
+   "planted": null,
+   "signature": "def minPath(grid, k):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 145,
+    "countedTokens": null,
+    "elapsedMs": 2568,
+    "firstTextMs": 1650,
+    "judgeCalls": 1,
+    "judgeMsMedian": 121,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 51,
+      "chars": 152,
+      "sentAtMs": 1932,
+      "ms": 121,
+      "rules": {
+       "not_code": 0.11,
+       "not_python": 0.04,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.16,
+       "refuses": 0.03
+      },
+      "choice": "kill",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.16
+      }
+     }
+    ],
+    "text": "def minPath(grid, k):\n    n = len(grid)\n    for i in range(n):\n        for j in range(n):\n            if grid[i][j] == 1:\n                best = n * n + 1\n                for di, dj in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                    x, y = i + di, j + dj\n                    if 0 <= x < n and 0 <= y < n:\n                        best = min(best, grid[x][y])\n                return [1 if t % 2 == 0 else best for t in range(k)]",
+    "outputTokens": 177,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 637,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 177,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": true,
+    "referee": {
+     "passed": true,
+     "status": "pass",
+     "ms": 30,
+     "stderrTail": ""
+    }
+   },
+   "live": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 152,
+    "countedTokens": 214,
+    "elapsedMs": 2640,
+    "firstTextMs": 1495,
+    "judgeCalls": 2,
+    "judgeMsMedian": 143,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 51,
+      "chars": 153,
+      "sentAtMs": 1776,
+      "ms": 167,
+      "rules": {
+       "not_code": 0.11,
+       "not_python": 0.03,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.12,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.12
+      }
+     },
+     {
+      "at": 152,
+      "chars": 455,
+      "sentAtMs": 2521,
+      "ms": 119,
+      "rules": {
+       "not_code": 0.03,
+       "not_python": 0.02,
+       "bad_import": 0.02,
+       "wrong_signature": 0.02,
+       "stub": 0.02,
+       "refuses": 0.02
+      },
+      "choice": "kill",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.03
+      }
+     }
+    ],
+    "text": "def minPath(grid, k):\n    n = len(grid)\n    # locate the cell containing 1\n    for i in range(n):\n        for j in range(n):\n            if grid[i][j] == 1:\n                x, y = i, j\n    # smallest neighbor value\n    best = n * n + 1\n    for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n        a, b = x + dx, y + dy\n        if 0 <= a < n and 0 <= b < n:\n            best = min(best, grid[a][b])\n    return [1 if i % 2 == 0 else best for i in range(k)]",
+    "usage": {
+     "input_tokens": 637,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 208,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    }
+   }
+  },
+  {
+   "id": "HumanEval/132",
+   "entry_point": "is_nested",
+   "planted": "stub",
+   "signature": "def is_nested(string):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 174,
+    "countedTokens": null,
+    "elapsedMs": 1766,
+    "firstTextMs": 991,
+    "judgeCalls": 2,
+    "judgeMsMedian": 119,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 50,
+      "chars": 149,
+      "sentAtMs": 1206,
+      "ms": 120,
+      "rules": {
+       "not_code": 0.08,
+       "not_python": 0.05,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.24,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.24
+      }
+     },
+     {
+      "at": 152,
+      "chars": 456,
+      "sentAtMs": 1611,
+      "ms": 117,
+      "rules": {
+       "not_code": 0.07,
+       "not_python": 0.09,
+       "bad_import": 0.03,
+       "wrong_signature": 0.04,
+       "stub": 0.09,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_python",
+       "p": 0.09
+      }
+     }
+    ],
+    "text": "def is_nested(string):\n    '''\n    Create a function that takes a string as input which contains only square brackets.\n    The function should return True if and only if there is a valid subsequence of brackets \n    where at least one bracket in the subsequence is nested.\n\n    is_nested('[[]]') ➞ True\n    is_nested('[]]]]]]][[[[[]') ➞ False\n    is_nested('[][]') ➞ False\n    is_nested('[]') ➞ False\n    is_nested('[[][]]') ➞ True\n    is_nested('[[]][[') ➞ True\n    '''\n    # TODO: implement\n    raise NotImplementedError",
+    "outputTokens": 214,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 344,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 214,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": false,
+    "referee": {
+     "passed": false,
+     "status": "fail",
+     "ms": 53,
+     "stderrTail": "    raise NotImplementedError | NotImplementedError"
+    }
+   },
+   "live": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 174,
+    "countedTokens": 220,
+    "elapsedMs": 2973,
+    "firstTextMs": 1863,
+    "judgeCalls": 2,
+    "judgeMsMedian": 377,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 59,
+      "chars": 178,
+      "sentAtMs": 2205,
+      "ms": 391,
+      "rules": {
+       "not_code": 0.05,
+       "not_python": 0.06,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.14,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.14
+      }
+     },
+     {
+      "at": 150,
+      "chars": 450,
+      "sentAtMs": 2609,
+      "ms": 363,
+      "rules": {
+       "not_code": 0.07,
+       "not_python": 0.05,
+       "bad_import": 0.03,
+       "wrong_signature": 0.04,
+       "stub": 0.09,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.09
+      }
+     }
+    ],
+    "text": "def is_nested(string):\n    '''\n    Create a function that takes a string as input which contains only square brackets.\n    The function should return True if and only if there is a valid subsequence of brackets \n    where at least one bracket in the subsequence is nested.\n\n    is_nested('[[]]') ➞ True\n    is_nested('[]]]]]]][[[[[]') ➞ False\n    is_nested('[][]') ➞ False\n    is_nested('[]') ➞ False\n    is_nested('[[][]]') ➞ True\n    is_nested('[[]][[') ➞ True\n    '''\n    # TODO: implement\n    raise NotImplementedError",
+    "usage": {
+     "input_tokens": 344,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 214,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    }
+   }
+  },
+  {
+   "id": "HumanEval/140",
+   "entry_point": "fix_spaces",
+   "planted": null,
+   "signature": "def fix_spaces(text):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 186,
+    "countedTokens": null,
+    "elapsedMs": 1959,
+    "firstTextMs": 852,
+    "judgeCalls": 2,
+    "judgeMsMedian": 134,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 52,
+      "chars": 155,
+      "sentAtMs": 1047,
+      "ms": 182,
+      "rules": {
+       "not_code": 0.04,
+       "not_python": 0.05,
+       "bad_import": 0.03,
+       "wrong_signature": 0.02,
+       "stub": 0.11,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.11
+      }
+     },
+     {
+      "at": 155,
+      "chars": 466,
+      "sentAtMs": 1874,
+      "ms": 85,
+      "rules": {
+       "not_code": 0.04,
+       "not_python": 0.05,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.07,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.07
+      }
+     }
+    ],
+    "text": "def fix_spaces(text):\n    \"\"\"\n    Given a string text, replace all spaces in it with underscores, \n    and if a string has more than 2 consecutive spaces, \n    then replace all consecutive spaces with - \n    \n    fix_spaces(\"Example\") == \"Example\"\n    fix_spaces(\"Example 1\") == \"Example_1\"\n    fix_spaces(\" Example 2\") == \"_Example_2\"\n    fix_spaces(\" Example   3\") == \"_Example-3\"\n    \"\"\"\n    import re\n\n    def repl(m):\n        s = m.group(0)\n        if len(s) > 2:\n            return \"-\"\n        return \"_\" * len(s)\n\n    return re.sub(r\" +\", repl, text)",
+    "outputTokens": 230,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 285,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 230,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": true,
+    "referee": {
+     "passed": true,
+     "status": "pass",
+     "ms": 28,
+     "stderrTail": ""
+    }
+   },
+   "live": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 185,
+    "countedTokens": 236,
+    "elapsedMs": 1993,
+    "firstTextMs": 826,
+    "judgeCalls": 2,
+    "judgeMsMedian": 151,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 52,
+      "chars": 155,
+      "sentAtMs": 1111,
+      "ms": 215,
+      "rules": {
+       "not_code": 0.06,
+       "not_python": 0.06,
+       "bad_import": 0.03,
+       "wrong_signature": 0.02,
+       "stub": 0.08,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.08
+      }
+     },
+     {
+      "at": 154,
+      "chars": 461,
+      "sentAtMs": 1906,
+      "ms": 87,
+      "rules": {
+       "not_code": 0.05,
+       "not_python": 0.06,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.07,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.07
+      }
+     }
+    ],
+    "text": "def fix_spaces(text):\n    \"\"\"\n    Given a string text, replace all spaces in it with underscores, \n    and if a string has more than 2 consecutive spaces, \n    then replace all consecutive spaces with - \n    \n    fix_spaces(\"Example\") == \"Example\"\n    fix_spaces(\"Example 1\") == \"Example_1\"\n    fix_spaces(\" Example 2\") == \"_Example_2\"\n    fix_spaces(\" Example   3\") == \"_Example-3\"\n    \"\"\"\n    import re\n    def repl(m):\n        s = m.group(0)\n        if len(s) > 2:\n            return \"-\"\n        return \"_\" * len(s)\n    return re.sub(r\" +\", repl, text)",
+    "usage": {
+     "input_tokens": 285,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 230,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    }
+   }
+  },
+  {
+   "id": "HumanEval/141",
+   "entry_point": "file_name_check",
+   "planted": null,
+   "signature": "def file_name_check(file_name):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 403,
+    "countedTokens": null,
+    "elapsedMs": 2946,
+    "firstTextMs": 738,
+    "judgeCalls": 4,
+    "judgeMsMedian": 130,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 51,
+      "chars": 153,
+      "sentAtMs": 1097,
+      "ms": 139,
+      "rules": {
+       "not_code": 0.06,
+       "not_python": 0.04,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.21,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.21
+      }
+     },
+     {
+      "at": 155,
+      "chars": 466,
+      "sentAtMs": 1481,
+      "ms": 128,
+      "rules": {
+       "not_code": 0.05,
+       "not_python": 0.04,
+       "bad_import": 0.04,
+       "wrong_signature": 0.02,
+       "stub": 0.13,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.13
+      }
+     },
+     {
+      "at": 259,
+      "chars": 778,
+      "sentAtMs": 1872,
+      "ms": 115,
+      "rules": {
+       "not_code": 0.06,
+       "not_python": 0.07,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.1,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.1
+      }
+     },
+     {
+      "at": 350,
+      "chars": 1050,
+      "sentAtMs": 2814,
+      "ms": 132,
+      "rules": {
+       "not_code": 0.03,
+       "not_python": 0.03,
+       "bad_import": 0.02,
+       "wrong_signature": 0.02,
+       "stub": 0.03,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.03
+      }
+     }
+    ],
+    "text": "def file_name_check(file_name):\n    \"\"\"Create a function which takes a string representing a file's name, and returns\n    'Yes' if the the file's name is valid, and returns 'No' otherwise.\n    A file's name is considered to be valid if and only if all the following conditions \n    are met:\n    - There should not be more than three digits ('0'-'9') in the file's name.\n    - The file's name contains exactly one dot '.'\n    - The substring before the dot should not be empty, and it starts with a letter from \n    the latin alphapet ('a'-'z' and 'A'-'Z').\n    - The substring after the dot should be one of these: ['txt', 'exe', 'dll']\n    Examples:\n    file_name_check(\"example.txt\") # => 'Yes'\n    file_name_check(\"1example.dll\") # => 'No' (the name should start with a latin alphapet letter)\n    \"\"\"\n    if file_name.count('.') != 1:\n        return 'No'\n    digits = sum(1 for c in file_name if c in '0123456789')\n    if digits > 3:\n        return 'No'\n    name, ext = file_name.split('.')\n    if not name:\n        return 'No'\n    first = name[0]\n    if not (('a' <= first <= 'z') or ('A' <= first <= 'Z')):\n        return 'No'\n    if ext not in ['txt', 'exe', 'dll']:\n        return 'No'\n    return 'Yes'",
+    "outputTokens": 465,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 409,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 465,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": true,
+    "referee": {
+     "passed": true,
+     "status": "pass",
+     "ms": 32,
+     "stderrTail": ""
+    }
+   },
+   "live": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 406,
+    "countedTokens": 469,
+    "elapsedMs": 2851,
+    "firstTextMs": 748,
+    "judgeCalls": 4,
+    "judgeMsMedian": 236,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 51,
+      "chars": 153,
+      "sentAtMs": 1094,
+      "ms": 263,
+      "rules": {
+       "not_code": 0.06,
+       "not_python": 0.04,
+       "bad_import": 0.04,
+       "wrong_signature": 0.02,
+       "stub": 0.23,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.23
+      }
+     },
+     {
+      "at": 155,
+      "chars": 466,
+      "sentAtMs": 1441,
+      "ms": 209,
+      "rules": {
+       "not_code": 0.05,
+       "not_python": 0.05,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.12,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.12
+      }
+     },
+     {
+      "at": 259,
+      "chars": 778,
+      "sentAtMs": 1848,
+      "ms": 147,
+      "rules": {
+       "not_code": 0.07,
+       "not_python": 0.08,
+       "bad_import": 0.05,
+       "wrong_signature": 0.03,
+       "stub": 0.1,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.1
+      }
+     },
+     {
+      "at": 353,
+      "chars": 1058,
+      "sentAtMs": 2530,
+      "ms": 320,
+      "rules": {
+       "not_code": 0.02,
+       "not_python": 0.02,
+       "bad_import": 0.02,
+       "wrong_signature": 0.02,
+       "stub": 0.04,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.04
+      }
+     }
+    ],
+    "text": "def file_name_check(file_name):\n    \"\"\"Create a function which takes a string representing a file's name, and returns\n    'Yes' if the the file's name is valid, and returns 'No' otherwise.\n    A file's name is considered to be valid if and only if all the following conditions \n    are met:\n    - There should not be more than three digits ('0'-'9') in the file's name.\n    - The file's name contains exactly one dot '.'\n    - The substring before the dot should not be empty, and it starts with a letter from \n    the latin alphapet ('a'-'z' and 'A'-'Z').\n    - The substring after the dot should be one of these: ['txt', 'exe', 'dll']\n    Examples:\n    file_name_check(\"example.txt\") # => 'Yes'\n    file_name_check(\"1example.dll\") # => 'No' (the name should start with a latin alphapet letter)\n    \"\"\"\n    if file_name.count('.') != 1:\n        return 'No'\n    digits = sum(1 for c in file_name if c in '0123456789')\n    if digits > 3:\n        return 'No'\n    before, after = file_name.split('.')\n    if not before:\n        return 'No'\n    first = before[0]\n    if not (('a' <= first <= 'z') or ('A' <= first <= 'Z')):\n        return 'No'\n    if after not in ['txt', 'exe', 'dll']:\n        return 'No'\n    return 'Yes'",
+    "usage": {
+     "input_tokens": 409,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 463,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    }
+   }
+  },
+  {
+   "id": "HumanEval/148",
+   "entry_point": "bf",
+   "planted": "prose",
+   "signature": "def bf(planet1, planet2):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 471,
+    "countedTokens": null,
+    "elapsedMs": 3634,
+    "firstTextMs": 648,
+    "judgeCalls": 5,
+    "judgeMsMedian": 120,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 50,
+      "chars": 151,
+      "sentAtMs": 1002,
+      "ms": 120,
+      "rules": {
+       "not_code": 0.95,
+       "not_python": 0.78,
+       "bad_import": 0.08,
+       "wrong_signature": 0.08,
+       "stub": 0.18,
+       "refuses": 0.07
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": true,
+       "rule": "not_code",
+       "p": 0.95
+      }
+     },
+     {
+      "at": 155,
+      "chars": 464,
+      "sentAtMs": 1440,
+      "ms": 95,
+      "rules": {
+       "not_code": 0.93,
+       "not_python": 0.21,
+       "bad_import": 0.05,
+       "wrong_signature": 0.04,
+       "stub": 0.09,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": true,
+       "rule": "not_code",
+       "p": 0.93
+      }
+     },
+     {
+      "at": 252,
+      "chars": 755,
+      "sentAtMs": 2111,
+      "ms": 149,
+      "rules": {
+       "not_code": 0.93,
+       "not_python": 0.09,
+       "bad_import": 0.04,
+       "wrong_signature": 0.05,
+       "stub": 0.08,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": true,
+       "rule": "not_code",
+       "p": 0.93
+      }
+     },
+     {
+      "at": 352,
+      "chars": 1055,
+      "sentAtMs": 2483,
+      "ms": 160,
+      "rules": {
+       "not_code": 0.91,
+       "not_python": 0.2,
+       "bad_import": 0.04,
+       "wrong_signature": 0.04,
+       "stub": 0.1,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": true,
+       "rule": "not_code",
+       "p": 0.91
+      }
+     },
+     {
+      "at": 450,
+      "chars": 1350,
+      "sentAtMs": 3527,
+      "ms": 107,
+      "rules": {
+       "not_code": 0.93,
+       "not_python": 0.04,
+       "bad_import": 0.02,
+       "wrong_signature": 0.03,
+       "stub": 0.07,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": true,
+       "rule": "not_code",
+       "p": 0.93
+      }
+     }
+    ],
+    "text": "I keep the planets in a list ordered by distance from the Sun, look up the indices of both names (returning an empty tuple if either is invalid or they are equal), and slice the list strictly between the two indices. Since the slice runs from the smaller index to the larger one, the result is automatically sorted by proximity to the Sun.\n\ndef bf(planet1, planet2):\n    '''\n    There are eight planets in our solar system: the closerst to the Sun \n    is Mercury, the next one is Venus, then Earth, Mars, Jupiter, Saturn, \n    Uranus, Neptune.\n    Write a function that takes two planet names as strings planet1 and planet2. \n    The function should return a tuple containing all planets whose orbits are \n    located between the orbit of planet1 and the orbit of planet2, sorted by \n    the proximity to the sun. \n    The function should return an empty tuple if planet1 or planet2\n    are not correct planet names. \n    Examples\n    bf(\"Jupiter\", \"Neptune\") ==> (\"Saturn\", \"Uranus\")\n    bf(\"Earth\", \"Mercury\") ==> (\"Venus\")\n    bf(\"Mercury\", \"Uranus\") ==> (\"Venus\", \"Earth\", \"Mars\", \"Jupiter\", \"Saturn\")\n    '''\n    planets = [\"Mercury\", \"Venus\", \"Earth\", \"Mars\", \"Jupiter\", \"Saturn\", \"Uranus\", \"Neptune\"]\n    if planet1 not in planets or planet2 not in planets:\n        return ()\n    i = planets.index(planet1)\n    j = planets.index(planet2)\n    if i > j:\n        i, j = j, i\n    return tuple(planets[i + 1:j])",
+    "outputTokens": 566,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 469,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 566,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": false,
+    "referee": {
+     "passed": false,
+     "status": "fail",
+     "ms": 56,
+     "stderrTail": "      ^^^^ | SyntaxError: invalid syntax"
+    }
+   },
+   "live": {
+    "killed": true,
+    "kill": {
+     "rule": "not_code",
+     "p": 0.96,
+     "checkpointAt": 50,
+     "atTokens": 85,
+     "atChars": 254,
+     "atMs": 1125,
+     "judgeMs": 162,
+     "charsAfterAbort": 0,
+     "tokensAfterAbort": 0
+    },
+    "estTokens": 85,
+    "countedTokens": 89,
+    "elapsedMs": 1126,
+    "firstTextMs": 617,
+    "judgeCalls": 1,
+    "judgeMsMedian": 162,
+    "judgeErrors": [],
+    "stopReason": "killed",
+    "checkpoints": [
+     {
+      "at": 50,
+      "chars": 149,
+      "sentAtMs": 963,
+      "ms": 162,
+      "rules": {
+       "not_code": 0.96,
+       "not_python": 0.83,
+       "bad_import": 0.09,
+       "wrong_signature": 0.08,
+       "stub": 0.15,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": true,
+       "rule": "not_code",
+       "p": 0.96
+      }
+     }
+    ],
+    "text": "I keep the planets in a list ordered by distance from the Sun, look up the indices of both inputs, and return the slice strictly between them as a tuple. If either name is invalid or both names are the same, the result is an empty tuple.\n\ndef bf(planet1,",
+    "usage": null
+   }
+  },
+  {
+   "id": "HumanEval/153",
+   "entry_point": "Strongest_Extension",
+   "planted": null,
+   "signature": "def Strongest_Extension(class_name, extensions):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 460,
+    "countedTokens": null,
+    "elapsedMs": 3098,
+    "firstTextMs": 813,
+    "judgeCalls": 5,
+    "judgeMsMedian": 91,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 57,
+      "chars": 172,
+      "sentAtMs": 1017,
+      "ms": 125,
+      "rules": {
+       "not_code": 0.08,
+       "not_python": 0.07,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.24,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.24
+      }
+     },
+     {
+      "at": 151,
+      "chars": 454,
+      "sentAtMs": 1495,
+      "ms": 153,
+      "rules": {
+       "not_code": 0.07,
+       "not_python": 0.08,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.17,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.17
+      }
+     },
+     {
+      "at": 251,
+      "chars": 754,
+      "sentAtMs": 1879,
+      "ms": 85,
+      "rules": {
+       "not_code": 0.07,
+       "not_python": 0.08,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.11,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.11
+      }
+     },
+     {
+      "at": 352,
+      "chars": 1056,
+      "sentAtMs": 2921,
+      "ms": 91,
+      "rules": {
+       "not_code": 0.05,
+       "not_python": 0.05,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.15,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.15
+      }
+     },
+     {
+      "at": 460,
+      "chars": 1380,
+      "sentAtMs": 3012,
+      "ms": 85,
+      "rules": {
+       "not_code": 0.03,
+       "not_python": 0.03,
+       "bad_import": 0.02,
+       "wrong_signature": 0.03,
+       "stub": 0.01,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.03
+      }
+     }
+    ],
+    "text": "def Strongest_Extension(class_name, extensions):\n    \"\"\"You will be given the name of a class (a string) and a list of extensions.\n    The extensions are to be used to load additional classes to the class. The\n    strength of the extension is as follows: Let CAP be the number of the uppercase\n    letters in the extension's name, and let SM be the number of lowercase letters \n    in the extension's name, the strength is given by the fraction CAP - SM. \n    You should find the strongest extension and return a string in this \n    format: ClassName.StrongestExtensionName.\n    If there are two or more extensions with the same strength, you should\n    choose the one that comes first in the list.\n    For example, if you are given \"Slices\" as the class and a list of the\n    extensions: ['SErviNGSliCes', 'Cheese', 'StuFfed'] then you should\n    return 'Slices.SErviNGSliCes' since 'SErviNGSliCes' is the strongest extension \n    (its strength is -1).\n    Example:\n    for Strongest_Extension('my_class', ['AA', 'Be', 'CC']) == 'my_class.AA'\n    \"\"\"\n    best = None\n    best_strength = None\n    for ext in extensions:\n        cap = sum(1 for c in ext if c.isupper())\n        sm = sum(1 for c in ext if c.islower())\n        s = cap - sm\n        if best_strength is None or s > best_strength:\n            best_strength = s\n            best = ext\n    return class_name + \".\" + best",
+    "outputTokens": 491,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 496,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 491,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": true,
+    "referee": {
+     "passed": true,
+     "status": "pass",
+     "ms": 28,
+     "stderrTail": ""
+    }
+   },
+   "live": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 460,
+    "countedTokens": 497,
+    "elapsedMs": 3059,
+    "firstTextMs": 826,
+    "judgeCalls": 5,
+    "judgeMsMedian": 104,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 57,
+      "chars": 172,
+      "sentAtMs": 1038,
+      "ms": 250,
+      "rules": {
+       "not_code": 0.08,
+       "not_python": 0.07,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.24,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.24
+      }
+     },
+     {
+      "at": 151,
+      "chars": 454,
+      "sentAtMs": 1498,
+      "ms": 246,
+      "rules": {
+       "not_code": 0.05,
+       "not_python": 0.08,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.18,
+       "refuses": 0.04
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.18
+      }
+     },
+     {
+      "at": 251,
+      "chars": 754,
+      "sentAtMs": 1852,
+      "ms": 104,
+      "rules": {
+       "not_code": 0.11,
+       "not_python": 0.09,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.1,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "not_code",
+       "p": 0.11
+      }
+     },
+     {
+      "at": 352,
+      "chars": 1056,
+      "sentAtMs": 2818,
+      "ms": 80,
+      "rules": {
+       "not_code": 0.06,
+       "not_python": 0.05,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.13,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.13
+      }
+     },
+     {
+      "at": 452,
+      "chars": 1356,
+      "sentAtMs": 2959,
+      "ms": 97,
+      "rules": {
+       "not_code": 0.04,
+       "not_python": 0.03,
+       "bad_import": 0.03,
+       "wrong_signature": 0.03,
+       "stub": 0.11,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.11
+      }
+     }
+    ],
+    "text": "def Strongest_Extension(class_name, extensions):\n    \"\"\"You will be given the name of a class (a string) and a list of extensions.\n    The extensions are to be used to load additional classes to the class. The\n    strength of the extension is as follows: Let CAP be the number of the uppercase\n    letters in the extension's name, and let SM be the number of lowercase letters \n    in the extension's name, the strength is given by the fraction CAP - SM. \n    You should find the strongest extension and return a string in this \n    format: ClassName.StrongestExtensionName.\n    If there are two or more extensions with the same strength, you should\n    choose the one that comes first in the list.\n    For example, if you are given \"Slices\" as the class and a list of the\n    extensions: ['SErviNGSliCes', 'Cheese', 'StuFfed'] then you should\n    return 'Slices.SErviNGSliCes' since 'SErviNGSliCes' is the strongest extension \n    (its strength is -1).\n    Example:\n    for Strongest_Extension('my_class', ['AA', 'Be', 'CC']) == 'my_class.AA'\n    \"\"\"\n    best = None\n    best_strength = None\n    for ext in extensions:\n        cap = sum(1 for c in ext if c.isupper())\n        sm = sum(1 for c in ext if c.islower())\n        s = cap - sm\n        if best_strength is None or s > best_strength:\n            best_strength = s\n            best = ext\n    return class_name + \".\" + best",
+    "usage": {
+     "input_tokens": 496,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 491,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    }
+   }
+  },
+  {
+   "id": "HumanEval/156",
+   "entry_point": "int_to_mini_roman",
+   "planted": null,
+   "signature": "def int_to_mini_roman(number):",
+   "control": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 213,
+    "countedTokens": null,
+    "elapsedMs": 2563,
+    "firstTextMs": 1139,
+    "judgeCalls": 2,
+    "judgeMsMedian": 116,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 51,
+      "chars": 154,
+      "sentAtMs": 1310,
+      "ms": 131,
+      "rules": {
+       "not_code": 0.06,
+       "not_python": 0.06,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.18,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.18
+      }
+     },
+     {
+      "at": 152,
+      "chars": 457,
+      "sentAtMs": 2293,
+      "ms": 100,
+      "rules": {
+       "not_code": 0.02,
+       "not_python": 0.02,
+       "bad_import": 0.02,
+       "wrong_signature": 0.02,
+       "stub": 0.03,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.03
+      }
+     }
+    ],
+    "text": "def int_to_mini_roman(number):\n    \"\"\"\n    Given a positive integer, obtain its roman numeral equivalent as a string,\n    and return it in lowercase.\n    Restrictions: 1 <= num <= 1000\n\n    Examples:\n    >>> int_to_mini_roman(19) == 'xix'\n    >>> int_to_mini_roman(152) == 'clii'\n    >>> int_to_mini_roman(426) == 'cdxxvi'\n    \"\"\"\n    values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]\n    symbols = ['m', 'cm', 'd', 'cd', 'c', 'xc', 'l', 'xl', 'x', 'ix', 'v', 'iv', 'i']\n    result = []\n    for v, s in zip(values, symbols):\n        count, number = divmod(number, v)\n        result.append(s * count)\n    return ''.join(result)",
+    "outputTokens": 320,
+    "thinkingTokens": 0,
+    "usage": {
+     "input_tokens": 279,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 320,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    },
+    "passed": true,
+    "referee": {
+     "passed": true,
+     "status": "pass",
+     "ms": 31,
+     "stderrTail": ""
+    }
+   },
+   "live": {
+    "killed": false,
+    "kill": null,
+    "estTokens": 232,
+    "countedTokens": 339,
+    "elapsedMs": 2488,
+    "firstTextMs": 1010,
+    "judgeCalls": 2,
+    "judgeMsMedian": 109,
+    "judgeErrors": [],
+    "stopReason": "end_turn",
+    "checkpoints": [
+     {
+      "at": 51,
+      "chars": 154,
+      "sentAtMs": 1211,
+      "ms": 117,
+      "rules": {
+       "not_code": 0.08,
+       "not_python": 0.06,
+       "bad_import": 0.04,
+       "wrong_signature": 0.03,
+       "stub": 0.14,
+       "refuses": 0.03
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.14
+      }
+     },
+     {
+      "at": 150,
+      "chars": 451,
+      "sentAtMs": 2186,
+      "ms": 100,
+      "rules": {
+       "not_code": 0.02,
+       "not_python": 0.03,
+       "bad_import": 0.02,
+       "wrong_signature": 0.03,
+       "stub": 0.04,
+       "refuses": 0.02
+      },
+      "choice": "keep",
+      "decision": {
+       "kill": false,
+       "rule": "stub",
+       "p": 0.04
+      }
+     }
+    ],
+    "text": "def int_to_mini_roman(number):\n    \"\"\"\n    Given a positive integer, obtain its roman numeral equivalent as a string,\n    and return it in lowercase.\n    Restrictions: 1 <= num <= 1000\n\n    Examples:\n    >>> int_to_mini_roman(19) == 'xix'\n    >>> int_to_mini_roman(152) == 'clii'\n    >>> int_to_mini_roman(426) == 'cdxxvi'\n    \"\"\"\n    values = [\n        (1000, 'm'), (900, 'cm'), (500, 'd'), (400, 'cd'),\n        (100, 'c'), (90, 'xc'), (50, 'l'), (40, 'xl'),\n        (10, 'x'), (9, 'ix'), (5, 'v'), (4, 'iv'), (1, 'i'),\n    ]\n    result = []\n    for value, symbol in values:\n        while number >= value:\n            result.append(symbol)\n            number -= value\n    return ''.join(result)",
+    "usage": {
+     "input_tokens": 279,
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+     },
+     "output_tokens": 333,
+     "service_tier": "standard",
+     "inference_geo": "global",
+     "speed": "standard",
+     "output_tokens_details": {
+      "thinking_tokens": 0
+     }
+    }
+   }
+  }
+ ]
+}
