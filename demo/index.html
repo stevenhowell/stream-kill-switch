@@ -62,6 +62,27 @@
   .foot b { color: var(--fg); }
   .card.killed .foot .state { color: var(--red); font-weight: 600; }
   .card.done .foot .state { color: var(--green); font-weight: 600; }
+
+  /* Bill the lumberjack: one tree per kill */
+  #bill { position: fixed; right: 16px; bottom: 16px; width: 300px; height: 190px; z-index: 10; pointer-events: none; filter: drop-shadow(0 4px 10px rgba(0,0,0,.25)); }
+  #bill[hidden] { display: none !important; }
+  #bill .scene { width: 100%; height: 150px; background: color-mix(in srgb, var(--card) 85%, transparent); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  #bill .stumps { display: flex; gap: 3px; flex-wrap: wrap; padding: 4px 8px; font-size: 11px; color: var(--muted); align-items: center; }
+  #bill .stumps i { display: inline-block; width: 9px; height: 7px; background: #8b5a2b; border-radius: 2px 2px 0 0; border-top: 2px solid #c08a4e; }
+  #bill .axe { transform-origin: 62px 70px; }
+  #bill.chop .axe { animation: swing .35s ease-in-out 3; }
+  #bill.chop .body { animation: lean .35s ease-in-out 3; transform-origin: 48px 112px; }
+  #bill .tree { transform-origin: 200px 118px; }
+  #bill.fall .tree { animation: fall .8s cubic-bezier(.6,0,.9,.4) forwards; }
+  #bill.fall .tag { animation: rise 1.2s ease-out forwards; }
+  #bill .tag { opacity: 0; font: 700 13px -apple-system, "Helvetica Neue", sans-serif; fill: var(--green); }
+  #bill .face { animation: breathe 3s ease-in-out infinite; transform-origin: 48px 70px; }
+  @keyframes swing { 0% { transform: rotate(-70deg); } 55% { transform: rotate(25deg); } 100% { transform: rotate(-70deg); } }
+  @keyframes lean { 0% { transform: rotate(0); } 55% { transform: rotate(8deg); } 100% { transform: rotate(0); } }
+  @keyframes fall { 0% { transform: rotate(0); } 80% { transform: rotate(78deg); } 100% { transform: rotate(80deg); opacity: 0; } }
+  @keyframes rise { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-40px); } }
+  @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+  @media (prefers-reduced-motion: reduce) { #bill .face, #bill.chop .axe, #bill.chop .body { animation: none; } #bill.fall .tree { animation: none; opacity: 0; } }
   .empty { padding: 28px 20px; color: var(--muted); max-width: 720px; }
   .empty b { color: var(--fg); }
 </style>
@@ -89,6 +110,41 @@
   <span id="replayText"></span>
 </div>
 <div class="grid" id="grid"></div>
+<div id="bill" hidden aria-label="Bill the lumberjack: one tree falls for every killed generation">
+  <div class="scene">
+    <svg viewBox="0 0 300 150" width="100%" height="150">
+      <rect x="0" y="118" width="300" height="32" fill="#4c7a3a"/>
+      <ellipse cx="150" cy="120" rx="170" ry="5" fill="#3f6630"/>
+      <g class="tree">
+        <rect x="193" y="70" width="14" height="50" fill="#8b5a2b"/>
+        <polygon points="200,10 165,70 235,70" fill="#2f7d3a"/>
+        <polygon points="200,30 160,92 240,92" fill="#3a9a46"/>
+      </g>
+      <rect class="stump" x="193" y="112" width="14" height="8" fill="#8b5a2b"/>
+      <text class="tag" x="190" y="60" text-anchor="middle"></text>
+      <g class="body">
+        <rect x="38" y="78" width="22" height="34" rx="4" fill="#c0392b"/>
+        <rect x="38" y="78" width="22" height="34" rx="4" fill="url(#plaid)"/>
+        <rect x="40" y="110" width="8" height="12" fill="#2c3e50"/><rect x="50" y="110" width="8" height="12" fill="#2c3e50"/>
+        <rect x="38" y="121" width="11" height="5" fill="#111"/><rect x="49" y="121" width="11" height="5" fill="#111"/>
+        <g class="face">
+          <circle cx="49" cy="66" r="12" fill="#f1c27d"/>
+          <path d="M37 66 q12 -16 24 0" fill="#c0392b"/>
+          <rect x="35" y="58" width="28" height="5" fill="#c0392b"/>
+          <circle cx="45" cy="66" r="1.6" fill="#111"/><circle cx="53" cy="66" r="1.6" fill="#111"/>
+          <path d="M40 72 q9 12 18 0 v6 q-9 6 -18 0z" fill="#6b4423"/>
+        </g>
+        <g class="axe">
+          <rect x="60" y="68" width="4" height="40" rx="2" fill="#8b5a2b" transform="rotate(-20 62 70)"/>
+          <path d="M58 62 l14 -10 l10 8 l-6 14z" fill="#9aa5ad" transform="rotate(-20 62 70)"/>
+        </g>
+      </g>
+      <defs><pattern id="plaid" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="none"/><rect width="8" height="2" fill="rgba(0,0,0,.25)"/><rect width="2" height="8" fill="rgba(0,0,0,.25)"/></pattern></defs>
+    </svg>
+  </div>
+  <div class="stumps"><span class="count">Bill is waiting for the first bad one.</span></div>
+</div>
+
 
 <script type="module">
 import { replay, summarizeLive, dollars } from "/lib/scoreboard.mjs";
@@ -106,6 +162,7 @@ async function load() {
   for (const t of tasks) makeCard(t);
   const last = await fetch("/last").then(r => r.json());
   if (last && last.running) { running = last.running.phase; $("runControl").disabled = true; $("runLive").disabled = true; $("status").textContent = `A ${last.running.phase} run is in progress; re-attaching…`; reattach(last.running.phase); }
+  if (last && last.tasks && last.scoreboard?.live?.kills) { bill.felled = last.scoreboard.live.kills; billShow(); $("bill").querySelector(".stumps").innerHTML = Array.from({ length: Math.min(bill.felled, 40) }, () => "<i></i>").join("") + `<span class="count">${bill.felled} felled last run</span>`; }
   if (last && last.tasks) { lastTasks = last.tasks; lastScoreboard = last.scoreboard; for (const t of last.tasks) paintTask(t, t.live ? "live" : "control"); renderBoard(); $("runLive").disabled = !last.tasks.some(t => t.control); $("status").textContent = `Showing ${last.sample ? "the sample run shipped with the demo" : "the last run"} (${new Date(last.startedAt).toLocaleString()}).`; }
   else $("empty").hidden = false;
 }
@@ -203,7 +260,7 @@ function run(phase) {
   const live = {}; let done = 0, total = tasks.length;
   let activeId = null;
   const es = new EventSource(`/run?phase=${phase}&concurrency=${$("oneAtATime").checked ? 1 : 4}`);
-  es.addEventListener("start", (e) => { const d = JSON.parse(e.data); total = d.tasks.length; for (const t of d.tasks) { const el = cards.get(t.id); delete el.dataset.attempt; el.classList.remove("killed", "done", "streaming", "fixed"); const nb = el.querySelector(".note"); nb.hidden = true; nb.textContent = ""; el.querySelector("pre").textContent = ""; setMeter(el, null); el.querySelector(".foot").innerHTML = `<span class="state">Queued</span>`; } $("status").textContent = `${phase === "control" ? "Control" : "Live"}: 0 of ${total} done`; $("progress").hidden = false; $("progress").querySelector("i").style.width = "0%"; });
+  es.addEventListener("start", (e) => { const d = JSON.parse(e.data); total = d.tasks.length; if (phase === "live") billReset(); for (const t of d.tasks) { const el = cards.get(t.id); delete el.dataset.attempt; el.classList.remove("killed", "done", "streaming", "fixed"); const nb = el.querySelector(".note"); nb.hidden = true; nb.textContent = ""; el.querySelector("pre").textContent = ""; setMeter(el, null); el.querySelector(".foot").innerHTML = `<span class="state">Queued</span>`; } $("status").textContent = `${phase === "control" ? "Control" : "Live"}: 0 of ${total} done`; $("progress").hidden = false; $("progress").querySelector("i").style.width = "0%"; });
   es.addEventListener("text", (e) => { const d = JSON.parse(e.data); const el = cards.get(d.id); const pre = el.querySelector("pre");
     if ($("oneAtATime").checked && activeId !== d.id) { if (activeId) cards.get(activeId)?.classList.remove("active"); activeId = d.id; activeIdGlobal = d.id; el.classList.add("active"); el.scrollIntoView({ block: "center", behavior: "smooth" }); } if (d.attempt && el.dataset.attempt !== String(d.attempt)) { el.dataset.attempt = String(d.attempt); pre.textContent = ""; el.classList.remove("killed"); } el.classList.add("streaming"); pre.textContent += d.text; pre.scrollTop = pre.scrollHeight; el.querySelector(".foot").innerHTML = d.attempt ? `<span class="state">Retrying with the reason</span> · ~${d.estTokens} tokens` : `<span class="state">Streaming</span> · ~${d.estTokens} tokens`; });
   es.addEventListener("checkpoint", (e) => { const d = JSON.parse(e.data); setMeter(cards.get(d.id), d.rules); });
@@ -211,6 +268,7 @@ function run(phase) {
     // Add this kill to the totals now, not when its retry finishes. The server's figures replace these at task-done.
     if (phase === "live" && !d.attempt) {
       const t = lastTasks?.find(x => x.id === d.id); const task = tasks.find(x => x.id === d.id);
+      billChop(t?.control?.outputTokens != null ? Math.max(0, t.control.outputTokens - d.atTokens) : null);
       if (t?.control?.outputTokens != null) {
         lastScoreboard = lastScoreboard || {}; const l = lastScoreboard.live = lastScoreboard.live || { kills: 0, trueKills: 0, falseKills: 0, tokensNotGenerated: 0, tokensWasted: 0, net: 0, msSaved: 0, msWasted: 0, retryMs: 0, retryTokens: 0, tasks: 0 };
         l.kills++;
@@ -233,12 +291,35 @@ async function reattach(phase) {
     let st; try { st = await fetch("/status").then(r => r.json()); } catch { $("status").textContent = "Server unreachable. Is `npm run demo` still running?"; continue; }
     if (st.running) { $("status").textContent = `${st.running.phase === "control" ? "Control" : "Live"}: ${st.running.done} of ${st.running.total} done (re-attached, results arrive when the run ends)`; continue; }
     const last = await fetch("/last").then(r => r.json());
-    if (last && last.tasks) { lastTasks = last.tasks; lastScoreboard = last.scoreboard; for (const t of last.tasks) paintTask(t, t.live ? "live" : "control"); renderBoard(); }
+    if (last && last.tasks && last.scoreboard?.live?.kills) { bill.felled = last.scoreboard.live.kills; billShow(); $("bill").querySelector(".stumps").innerHTML = Array.from({ length: Math.min(bill.felled, 40) }, () => "<i></i>").join("") + `<span class="count">${bill.felled} felled last run</span>`; }
+  if (last && last.tasks) { lastTasks = last.tasks; lastScoreboard = last.scoreboard; for (const t of last.tasks) paintTask(t, t.live ? "live" : "control"); renderBoard(); }
     running = null; $("runControl").disabled = false; $("runLive").disabled = !(last && last.tasks && last.tasks.some(t => t.control)); $("progress").hidden = true;
     $("status").textContent = `${phase === "control" ? "Control" : "Live"} finished (re-attached).`;
     return;
   }
 }
+
+// Bill the lumberjack. Every kill queues one tree; Bill chops it down, the tokens it saved float off, a stump stays.
+const bill = { queue: [], busy: false, felled: 0 };
+function billShow() { $("bill").hidden = false; }
+function billReset() { bill.queue = []; bill.felled = 0; $("bill").querySelector(".stumps").innerHTML = `<span class="count">Bill is waiting for the first bad one.</span>`; billShow(); }
+function billChop(savedTokens) { bill.queue.push(savedTokens); billShow(); if (!bill.busy) billNext(); }
+function billNext() {
+  const saved = bill.queue.shift(); if (saved === undefined) { bill.busy = false; return; }
+  bill.busy = true;
+  const el = $("bill"); const tag = el.querySelector(".tag");
+  tag.textContent = saved != null ? `−${fmt(saved)} tokens` : "chop";
+  el.classList.remove("fall"); el.querySelector(".tree").style.opacity = ""; void el.offsetWidth;
+  el.classList.add("chop");
+  setTimeout(() => { el.classList.remove("chop"); el.classList.add("fall"); }, 1050);
+  setTimeout(() => {
+    el.classList.remove("fall"); bill.felled++;
+    const st = el.querySelector(".stumps"); st.innerHTML = Array.from({ length: Math.min(bill.felled, 40) }, () => "<i></i>").join("") + `<span class="count">${bill.felled} felled</span>`;
+    billNext();
+  }, 1050 + 900);
+}
+window.billChop = billChop;
+
 // The pace switch works at any time: before a run it sets the width, during a run it changes it at the next task, and it is remembered.
 try { const saved = localStorage.getItem("oneAtATime"); if (saved !== null) $("oneAtATime").checked = saved === "1"; } catch {}
 $("oneAtATime").addEventListener("change", async () => {
