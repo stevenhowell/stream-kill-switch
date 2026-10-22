@@ -29,8 +29,8 @@
   .tile .k { color: var(--muted); font-size: 12px; }
   .tile .v { font-size: 22px; font-weight: 700; margin-top: 2px; }
   .tile .n { color: var(--muted); font-size: 11px; margin-top: 2px; }
-  .tile.hero { grid-column: span 2; background: color-mix(in srgb, var(--green) 14%, var(--card)); border: 1px solid color-mix(in srgb, var(--green) 45%, var(--line)); }
-  .tile.hero .v { font-size: 44px; line-height: 1.05; color: var(--green); }
+  .tile.hero { grid-column: span 1; background: color-mix(in srgb, var(--green) 14%, var(--card)); border: 1px solid color-mix(in srgb, var(--green) 45%, var(--line)); }
+  .tile.hero .v { font-size: 38px; line-height: 1.05; color: var(--green); }
   .tile.hero .k { color: var(--fg); font-weight: 600; }
   .tile.hero .n { font-size: 12px; }
   .note { margin: 0; padding: 7px 10px; font-size: 11.5px; line-height: 1.35; background: color-mix(in srgb, var(--amber) 12%, var(--code)); border-top: 1px solid color-mix(in srgb, var(--amber) 40%, var(--line)); border-bottom: 1px solid color-mix(in srgb, var(--amber) 40%, var(--line)); color: var(--fg); }
@@ -135,7 +135,10 @@ function paintTask(t, phase) {
   if (rec.retry?.note) { note.hidden = false; note.innerHTML = `<b>Fed back to the model:</b> ${rec.retry.note}`; } else { note.hidden = true; note.textContent = ""; }
   if (rec.killed) {
     el.classList.add("killed");
-    const saved = t.control?.outputTokens != null ? ` · <b>saved ~${fmt(t.control.outputTokens - rec.kill.atTokens)} tokens</b> vs control ${fmt(t.control.outputTokens)}` : "";
+    const sv = t.control?.outputTokens != null ? t.control.outputTokens - rec.kill.atTokens : null;
+    const sd = sv !== null ? dollars(sv, config.outputPricePerMillion) : null;
+    const st = t.control?.elapsedMs != null ? Math.max(0, t.control.elapsedMs - rec.kill.atMs) / 1000 : null;
+    const saved = sv !== null ? ` · <b>saved ~${fmt(sv)} tokens${sd !== null ? ` · $${sd.toFixed(4)}` : ""}${st !== null ? ` · ${st.toFixed(1)} s` : ""}</b> vs control ${fmt(t.control.outputTokens)} tokens in ${(t.control.elapsedMs / 1000).toFixed(1)} s` : "";
     foot.innerHTML = `<span class="state">Stopped at ~${rec.kill.atTokens} tokens (estimate${rec.countedTokens !== null && rec.countedTokens !== undefined ? `, counted ${rec.countedTokens}` : ""})</span> · ${rec.kill.rule} ${rec.kill.p.toFixed(2)} at ${(rec.kill.atMs / 1000).toFixed(1)} s${saved}` + retryLine(rec) + controlLine(t);
     if (rec.retry && !rec.retry.killed) { el.querySelector("pre").textContent = rec.retry.text; el.classList.add("fixed"); }
   } else {
@@ -160,9 +163,12 @@ function renderBoard() {
   if (sb.live) {
     const l = sb.live;
     const pct = sb.control?.tokens ? ` · ${Math.round(100 * l.tokensNotGenerated / sb.control.tokens)}% of the control run's output` : "";
-    tiles.push(`<div class="tile hero"><div class="k">Tokens saved</div><div class="v">${fmt(l.tokensNotGenerated)}</div><div class="n">never generated: each kill's control length (real) minus its stop point (estimate)${money(l.tokensNotGenerated)} at ${config.model} list price${pct}</div></div>`);
+    const d = dollars(l.tokensNotGenerated, config.outputPricePerMillion);
+    tiles.push(`<div class="tile hero"><div class="k">Tokens saved</div><div class="v">${fmt(l.tokensNotGenerated)}</div><div class="n">never generated: each kill's control length (real) minus its stop point (estimate)${pct}</div></div>`);
+    tiles.push(`<div class="tile hero"><div class="k">Dollars saved</div><div class="v">${d === null ? "–" : "$" + d.toFixed(4)}</div><div class="n">tokens saved at ${config.model}'s list price, $${config.outputPricePerMillion} per million output tokens (${config.priceNote})</div></div>`);
+    tiles.push(`<div class="tile hero"><div class="k">Time saved</div><div class="v">${(l.msSaved / 1000).toFixed(1)} s</div><div class="n">waiting that did not happen: each kill's control time (real) minus when the kill landed</div></div>`);
     tiles.push(tile("Live kills", `${l.kills}`, `${l.trueKills} on planted faults, ${l.falseKills} on clean briefs · ${l.tasks} of ${tasks.length} run`));
-    tiles.push(tile("Tokens wasted", fmt(l.tokensWasted), "paid before a kill on a clean brief"));
+    tiles.push(tile("Tokens wasted", fmt(l.tokensWasted), `paid before a kill on a clean brief · ${(l.msWasted / 1000).toFixed(1)} s waited for nothing`));
     tiles.push(tile("Net", (l.net >= 0 ? "+" : "") + fmt(l.net), `tokens${money(l.net)}`));
   }
   if (sb.control) {
@@ -170,7 +176,7 @@ function renderBoard() {
     tiles.push(tile("Control run", `${c.passed} pass · ${c.failed} fail`, `${c.done} of ${tasks.length} streamed with no switch · ${fmt(c.tokens)} output tokens (real) · ${c.plantedFailed} of ${c.planted} planted faults failed their tests`));
   }
   if (sb.retries && sb.retries.tried) {
-    tiles.push(tile("Retried with the reason", `${sb.retries.passed} of ${sb.retries.tried}`, `finished and passed tests · ${sb.retries.finished} finished · ${fmt(sb.retries.tokens)} tokens spent on retries (real)`));
+    tiles.push(tile("Retried with the reason", `${sb.retries.passed} of ${sb.retries.tried}`, `finished and passed tests · ${sb.retries.finished} finished · retries cost ${fmt(sb.retries.tokens)} tokens${money(sb.retries.tokens)} and ${((sb.live?.retryMs ?? 0) / 1000).toFixed(1)} s (real)`));
   }
   if (sb.replay) {
     const r = sb.replay;
@@ -184,7 +190,7 @@ function tile(k, v, n) { return `<div class="tile"><div class="k">${k}</div><div
 function renderReplay() {
   const th = Number($("threshold").value); $("thresholdValue").textContent = th.toFixed(2);
   const r = replay(lastTasks.filter(t => t.control), { threshold: th, overshootTokens: lastScoreboard?.overshootTokens ?? 0 });
-  $("replayText").innerHTML = `Shadow judgements from the control run, refereed by the tests, no new calls: <b>${r.kills} kills</b>, <b>${r.trueKills}</b> right, <b>${r.falseKills}</b> wrong, <b>${r.missed}</b> missed · not generated <b>${fmt(r.tokensNotGenerated)}</b> · wasted <b>${fmt(r.tokensWasted)}</b> · net <b>${r.net >= 0 ? "+" : ""}${fmt(r.net)}</b> tokens${money(r.net)}`;
+  $("replayText").innerHTML = `Shadow judgements from the control run, refereed by the tests, no new calls: <b>${r.kills} kills</b>, <b>${r.trueKills}</b> right, <b>${r.falseKills}</b> wrong, <b>${r.missed}</b> missed · not generated <b>${fmt(r.tokensNotGenerated)}</b> · wasted <b>${fmt(r.tokensWasted)}</b> · net <b>${r.net >= 0 ? "+" : ""}${fmt(r.net)}</b> tokens${money(r.net)} · <b>${(r.msSaved / 1000).toFixed(1)} s</b> not waited`;
 }
 $("threshold").addEventListener("input", renderReplay);
 

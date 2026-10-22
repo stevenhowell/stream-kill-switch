@@ -45,3 +45,17 @@ test("summarizeLive counts a live kill on a clean task as false", () => {
 test("dollars needs a price", () => {
   assert.equal(dollars(1_000_000, 10), 10); assert.equal(dollars(500, null), null);
 });
+
+test("summarizeLive adds time saved from the control's real elapsed time", () => {
+  const live = [
+    { id: "a", planted: "stub", control: { outputTokens: 600, elapsedMs: 5000 }, live: { killed: true, kill: { atTokens: 80, atMs: 1200, rule: "stub", p: 0.9 }, elapsedMs: 1300, retry: { elapsedMs: 2500, outputTokens: 400, killed: false } } },
+    { id: "b", planted: null, control: { outputTokens: 700, elapsedMs: 6000 }, live: { killed: true, kill: { atTokens: 60, atMs: 900, rule: "stub", p: 0.6 }, elapsedMs: 1000 } },
+  ];
+  const s = summarizeLive(live);
+  assert.equal(s.msSaved, 3800); assert.equal(s.msWasted, 900); assert.equal(s.retryMs, 2500); assert.equal(s.retryTokens, 400);
+});
+
+test("replay estimates time saved from checkpoint timing", () => {
+  const r = replay([{ id: "x", planted: "stub", control: { outputTokens: 600, elapsedMs: 5000, passed: false, checkpoints: [{ at: 50, sentAtMs: 800, ms: 120, rules: { stub: 0.97 } }] } }], { threshold: 0.5 });
+  assert.equal(r.msSaved, 5000 - 920);
+});
