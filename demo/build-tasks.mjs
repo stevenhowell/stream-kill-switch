@@ -22,9 +22,13 @@ export const FAULTS = {
 const PLANT_AT = { 2: "javascript", 5: "fence", 8: "bad_import", 11: "wrong_name", 14: "stub", 17: "prose" };
 
 // The 20 problems with the longest reference solutions, so a kill at token ~50 has a visible tail to save. Said on screen.
-const picked = [...rows].sort((a, b) => b.canonical_solution.length - a.canonical_solution.length).slice(0, 20).sort((a, b) => Number(a.task_id.split('/')[1]) - Number(b.task_id.split('/')[1]));
+// Usage: node demo/build-tasks.mjs [count=20] [planted=yes|no] [out=tasks.json]
+const COUNT = Number(process.argv[2] ?? 20);
+const PLANTED = (process.argv[3] ?? "yes") !== "no";
+const OUT = process.argv[4] ?? "tasks.json";
+const picked = [...rows].sort((a, b) => b.canonical_solution.length - a.canonical_solution.length).slice(0, COUNT).sort((a, b) => Number(a.task_id.split('/')[1]) - Number(b.task_id.split('/')[1]));
 const tasks = picked.map((r, i) => {
-  const planted = PLANT_AT[i] ?? null;
+  const planted = PLANTED ? (PLANT_AT[i] ?? null) : null;
   const signature = r.prompt.split("\n").find((l) => l.startsWith("def ")) ?? "";
   return {
     id: r.task_id,
@@ -37,5 +41,5 @@ const tasks = picked.map((r, i) => {
     context: { allowed_imports: ALLOWED_IMPORTS, required_signature: signature.trim() },
   };
 });
-writeFileSync(here + "tasks.json", JSON.stringify(tasks, null, 2));
+writeFileSync(here + OUT, JSON.stringify(tasks, null, 2));
 console.log(`${tasks.length} tasks, ${tasks.filter((t) => t.planted).length} planted: ${tasks.filter((t) => t.planted).map((t) => `${t.id}=${t.planted}`).join(", ")}`);

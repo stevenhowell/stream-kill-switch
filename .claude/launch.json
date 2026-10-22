@@ -19,6 +19,16 @@
         "demo/server.mjs"
       ],
       "port": 8788
+    },
+    {
+      "name": "demo-100",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--env-file=.env",
+        "--env-file=demo/test-100.env",
+        "demo/server.mjs"
+      ],
+      "port": 8789
     }
   ]
 }

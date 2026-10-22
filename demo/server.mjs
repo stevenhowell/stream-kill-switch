@@ -18,7 +18,7 @@ const CONCURRENCY = Number(process.env.DEMO_CONCURRENCY ?? 4);
 // List prices per million output tokens, platform.claude.com, cached 2026-10-06. Shown on screen with that label.
 const OUTPUT_PRICE = { "claude-opus-5-5": 20, "claude-sonnet-5-5": 10, "claude-haiku-5-5": 0.5 };
 
-const tasks = JSON.parse(readFileSync(here + "tasks.json", "utf8"));
+const tasks = JSON.parse(readFileSync(process.env.DEMO_TASKS ? process.env.DEMO_TASKS : here + "tasks.json", "utf8"));
 const rules = JSON.parse(readFileSync(here + "rules.json", "utf8"));
 const client = makeClaudeClient();
 const createStream = makeClaudeStreamFactory(client);
