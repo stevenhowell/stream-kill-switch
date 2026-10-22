@@ -35,6 +35,7 @@ function genParams(task) {
   return p;
 }
 
+let running = null; // { phase, done, total } while a phase runs, so a page that lost its connection can re-attach
 const runsDir = here + "runs/";
 if (!existsSync(runsDir)) mkdirSync(runsDir, { recursive: true });
 const latestPath = runsDir + "latest.json";
@@ -71,6 +72,7 @@ async function pool(items, n, fn, shouldStop) {
 async function runPhase(phase, { limit, concurrency }, send, shouldStop) {
   if (phase === "control" || !state) state = freshState();
   const list = tasks.slice(0, limit);
+  running = { phase, done: 0, total: list.length, startedAt: Date.now() };
   send("start", { phase, config: state.config, tasks: list.map((t) => ({ id: t.id, entry_point: t.entry_point, planted: t.planted, signature: t.context.required_signature })) });
   await pool(list, concurrency, async (task) => {
     const ts = taskState(task.id);
@@ -111,8 +113,10 @@ async function runPhase(phase, { limit, concurrency }, send, shouldStop) {
       ts.live = { ...summary, usage: record.usage, retry };
     }
     save();
+    running.done++;
     send("task-done", { id: task.id, phase, task: ts, scoreboard: scoreboard() });
   }, shouldStop);
+  running = null;
   send("phase-done", { phase, scoreboard: scoreboard(), tasks: state.tasks });
 }
 
@@ -126,17 +130,21 @@ const server = createServer(async (req, res) => {
     if (url.pathname === "/lib/scoreboard.mjs") { res.writeHead(200, { "content-type": "text/javascript" }); return res.end(readFileSync(here + "../scripts/lib/scoreboard.mjs")); }
     if (url.pathname === "/rules") return json(200, rules);
     if (url.pathname === "/tasks") return json(200, tasks.map((t) => ({ id: t.id, entry_point: t.entry_point, planted: t.planted, signature: t.context.required_signature })));
-    if (url.pathname === "/last") return json(200, state ? { ...state, scoreboard: scoreboard() } : { tasks: null });
+    if (url.pathname === "/last") return json(200, state ? { ...state, scoreboard: scoreboard(), running } : { tasks: null, running });
+    if (url.pathname === "/status") return json(200, { running });
     if (url.pathname === "/run") {
       const phase = url.searchParams.get("phase");
       if (phase !== "control" && phase !== "live") return json(400, { error: "phase must be control or live" });
       if (phase === "live" && !state?.tasks.some((t) => t.control)) return json(409, { error: "run the control phase first" });
+      if (running) return json(409, { error: `a ${running.phase} run is already going (${running.done} of ${running.total}); reload the page to re-attach` });
       const limit = Number(url.searchParams.get("limit") ?? tasks.length);
       const concurrency = Number(url.searchParams.get("concurrency") ?? CONCURRENCY);
       res.writeHead(200, { "content-type": "text/event-stream", "cache-control": "no-cache", connection: "keep-alive" });
+      // The run finishes even if the page goes away; the page re-attaches through /last and /status.
       let closed = false; req.on("close", () => { closed = true; });
-      const send = (event, data) => { if (!closed) res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`); };
-      await runPhase(phase, { limit, concurrency }, send, () => closed);
+      const send = (event, data) => { if (!closed) { try { res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`); } catch {} } };
+      const keepAlive = setInterval(() => send("ping", { t: Date.now() }), 10000);
+      try { await runPhase(phase, { limit, concurrency }, send, () => false); } finally { clearInterval(keepAlive); }
       if (!closed) res.end();
       return;
     }
@@ -147,4 +155,6 @@ const server = createServer(async (req, res) => {
     else res.end();
   }
 });
+server.requestTimeout = 0; server.headersTimeout = 0; server.keepAliveTimeout = 0;
+server.on("error", (err) => { if (err.code === "EADDRINUSE") { console.error(`Port ${PORT} is already in use: another copy of the demo is running. Use that one, or PORT=8788 npm run demo.`); process.exit(1); } throw err; });
 server.listen(PORT, () => console.log(`kill switch demo on http://localhost:${PORT}  model=${MODEL} judge=${config.judge} threshold=${THRESHOLD}`));

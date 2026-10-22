@@ -101,6 +101,7 @@ async function load() {
   $("emptyText").textContent = `Run control streams each problem once with no switch, judged in shadow, then runs the problem's own tests. Run live streams them again with the switch armed: a tripped rule aborts the stream. Faults are planted in ${planted} briefs so there is something to catch.`;
   for (const t of tasks) makeCard(t);
   const last = await fetch("/last").then(r => r.json());
+  if (last && last.running) { running = last.running.phase; $("runControl").disabled = true; $("runLive").disabled = true; $("status").textContent = `A ${last.running.phase} run is in progress; re-attaching…`; reattach(last.running.phase); }
   if (last && last.tasks) { lastTasks = last.tasks; lastScoreboard = last.scoreboard; for (const t of last.tasks) paintTask(t, t.live ? "live" : "control"); renderBoard(); $("runLive").disabled = !last.tasks.some(t => t.control); $("status").textContent = `Showing ${last.sample ? "the sample run shipped with the demo" : "the last run"} (${new Date(last.startedAt).toLocaleString()}).`; }
   else $("empty").hidden = false;
 }
@@ -197,7 +198,20 @@ function run(phase) {
   es.addEventListener("task-error", (e) => { const d = JSON.parse(e.data); done++; const el = cards.get(d.id); el.classList.remove("streaming"); el.querySelector(".foot").innerHTML = `<span class="state">Error</span> · ${d.error}`; });
   es.addEventListener("judge-error", (e) => { const d = JSON.parse(e.data); cards.get(d.id).querySelector(".foot").innerHTML += ` · judge error: ${d.error}`; });
   es.addEventListener("phase-done", (e) => { const d = JSON.parse(e.data); lastTasks = d.tasks; lastScoreboard = d.scoreboard; renderBoard(); es.close(); running = null; $("runControl").disabled = false; $("runLive").disabled = false; $("status").textContent = `${phase === "control" ? "Control" : "Live"} finished: ${done} of ${total}.`; $("progress").hidden = true; });
-  es.onerror = () => { if (running) { $("status").textContent = `Connection lost during the ${phase} run. The server keeps its results; reload to see them.`; es.close(); running = null; $("runControl").disabled = false; $("runLive").disabled = !lastTasks; } };
+  es.onerror = () => { if (!running) return; es.close(); $("status").textContent = `Connection dropped during the ${phase} run. The server keeps going; re-attaching…`; reattach(phase); };
+}
+async function reattach(phase) {
+  // Poll the server until the phase is over, then load what it saved.
+  for (;;) {
+    await new Promise(r => setTimeout(r, 2000));
+    let st; try { st = await fetch("/status").then(r => r.json()); } catch { $("status").textContent = "Server unreachable. Is `npm run demo` still running?"; continue; }
+    if (st.running) { $("status").textContent = `${st.running.phase === "control" ? "Control" : "Live"}: ${st.running.done} of ${st.running.total} done (re-attached, results arrive when the run ends)`; continue; }
+    const last = await fetch("/last").then(r => r.json());
+    if (last && last.tasks) { lastTasks = last.tasks; lastScoreboard = last.scoreboard; for (const t of last.tasks) paintTask(t, t.live ? "live" : "control"); renderBoard(); }
+    running = null; $("runControl").disabled = false; $("runLive").disabled = !(last && last.tasks && last.tasks.some(t => t.control)); $("progress").hidden = true;
+    $("status").textContent = `${phase === "control" ? "Control" : "Live"} finished (re-attached).`;
+    return;
+  }
 }
 $("runControl").addEventListener("click", () => run("control"));
 $("runLive").addEventListener("click", () => run("live"));
