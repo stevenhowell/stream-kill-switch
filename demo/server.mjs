@@ -50,6 +50,7 @@ function scoreboard() {
   const overshoot = median(state.tasks.filter((t) => t.live?.kill).map((t) => t.live.kill.tokensAfterAbort)) ?? 0;
   const haveControl = state.tasks.filter((t) => t.control);
   return {
+    control: haveControl.length ? { done: haveControl.length, passed: haveControl.filter((t) => t.control.passed).length, failed: haveControl.filter((t) => !t.control.passed).length, tokens: haveControl.reduce((n, t) => n + (t.control.outputTokens ?? 0), 0), plantedFailed: haveControl.filter((t) => t.planted && !t.control.passed).length, planted: haveControl.filter((t) => t.planted).length } : null,
     replay: haveControl.length ? replay(haveControl, { threshold: state.config.threshold, overshootTokens: overshoot }) : null,
     live: state.tasks.some((t) => t.live) ? summarizeLive(state.tasks.filter((t) => t.control && t.live)) : null,
     overshootTokens: overshoot,
@@ -81,6 +82,7 @@ async function runPhase(phase, { limit, concurrency }, send, shouldStop) {
       else if (ev.type === "checkpoint") send("checkpoint", { id: task.id, phase, attempt, at: ev.at, ms: ev.ms, rules: ev.rules, decision: ev.decision });
       else if (ev.type === "kill") send("kill", { id: task.id, phase, attempt, rule: ev.rule, p: ev.p, atTokens: ev.atTokens, atMs: ev.atMs });
       else if (ev.type === "judge-error") send("judge-error", { id: task.id, phase, attempt, error: ev.error });
+      else if (ev.type === "retry") send("retry-start", { id: task.id, phase, attempt, note: ev.note, previous: ev.previous });
     };
     const common = { createStream, params: genParams(task), judge, rules, task: task.task, context: task.context, mode, threshold: state.config.threshold, onEvent };
     try {

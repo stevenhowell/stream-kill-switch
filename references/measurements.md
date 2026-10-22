@@ -64,5 +64,6 @@ After a kill the model got its partial back as an assistant turn and the reviewe
 | Full live run | user turn | 5 | 3 (javascript, bad_import, wrong_name) | 3 of 3 | fence, prose |
 | Spot check on those two | system turn | 2 | 1 (fence) | 1 of 1 | prose |
 | Full live run | system turn | 5 | 2 (fence, bad_import) | 2 of 2 | javascript, wrong_name, prose |
+| Full live run (~6:40 PM) | user turn | 5 | 4 | 4 of 4 | prose |
 
-No winner between note roles at this sample size. Every planted fault is written into the system prompt, so a retry is fighting the brief: the model obeys the brief or the note, and which one varies run to run. The prose brief ("explain your approach first") was obeyed every time. A real deployment's brief is not the fault, so expect better than this on a model's own slips. Retry tokens are paid and shown on the scoreboard as real counts.
+Across four runs retries fixed 2 to 4 of the 5 kills; no winner between note roles at this sample size. Every planted fault is written into the system prompt, so a retry is fighting the brief: the model obeys the brief or the note, and which one varies run to run. The prose brief ("explain your approach first") was obeyed every time. A real deployment's brief is not the fault, so expect better than this on a model's own slips. Retry tokens are paid and shown on the scoreboard as real counts.

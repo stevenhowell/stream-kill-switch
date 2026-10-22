@@ -189,6 +189,7 @@ export async function runWithRetry({ maxRetries = 1, explain = explainKill, note
     if (i === maxRetries) break;
     const note = explain(record, opts.rules ?? []);
     record.retryNote = note;
+    opts.onEvent?.({ type: "retry", attempt: i + 1, note, previous: { rule: record.kill.rule, p: record.kill.p, atTokens: record.kill.atTokens } });
     // noteRole "user" works on every model. "system" sends the note as a mid-conversation system message (Opus 5.5, Sonnet 5.5,
     // Haiku 5.5 only; it must follow a user turn and be last). Three runs on 2026-10-21 showed no clear difference at n=5.
     const tail = noteRole === "system"
